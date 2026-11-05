@@ -4,6 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Vault — Elite Finance Tracker</title>
+    <!-- Ikon logo mewah untuk paparan web & shortcut telefon -->
+    <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/96/expensive-2.png">
+    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/96/expensive-2.png">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -180,11 +183,11 @@
 
     <script>
         const initialCommitments = [
-            { id: 1, name: "Credit Card", due: "5th", initial: 15000.00, remaining: 15000.00, monthly: 400.00, history: [] },
-
+            { id: 1, name: "AKPK", due: "5th", initial: 40945.76, remaining: 40945.76, monthly: 700.00, history: [] },
+           
         ];
 
-        let commitments = JSON.parse(localStorage.getItem('my_commitments_v25')) || initialCommitments;
+        let commitments = JSON.parse(localStorage.getItem('my_commitments_v26')) || initialCommitments;
         let showCompleted = false;
 
         function showToast(message, icon = "✨") {
@@ -226,7 +229,7 @@
         }
 
         function saveData() {
-            localStorage.setItem('my_commitments_v25', JSON.stringify(commitments));
+            localStorage.setItem('my_commitments_v26', JSON.stringify(commitments));
             render();
         }
 
@@ -543,4 +546,4 @@
         render();
     </script>
 </body>
-</html> 
+</html>
