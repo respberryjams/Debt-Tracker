@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vault — Elite Finance Tracker</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Plus Jakarta Sans', sans-serif; }
+        .luxury-bg {
+            background-color: #050508;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(212, 175, 55, 0.06) 0px, transparent 50%),
+                radial-gradient(at 50% 100%, rgba(15, 23, 42, 1) 0px, transparent 100%);
+        }
+        .glass-luxury {
+            background: linear-gradient(135deg, rgba(18, 24, 38, 0.75) 0%, rgba(10, 14, 23, 0.85) 100%);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.07);
+        }
+        .gold-glow {
+            text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        }
+        #toast {
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    </style>
+</head>
+<body class="luxury-bg text-slate-100 min-h-screen p-4 pb-28 selection:bg-amber-400 selection:text-slate-950">
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 opacity-0 pointer-events-none transform -translate-y-4 transition-all duration-300 w-11/12 max-w-sm">
+        <div id="toast-content" class="glass-luxury border border-amber-500/40 p-4 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs text-slate-200">
+            <span id="toast-icon" class="text-amber-400 text-base font-bold">✨</span>
+            <span id="toast-message" class="flex-1 font-medium">Notification message here</span>
+        </div>
+    </div>
+
+    <div class="max-w-md mx-auto space-y-5">
+        
+        <!-- Header -->
+        <header class="flex justify-between items-center py-3">
+            <div>
+                <p class="text-[10px] uppercase tracking-widest text-amber-400/80 font-bold">Privilege Portfolio</p>
+                <h1 class="text-xl font-extrabold tracking-tight text-slate-100">VAULT <span class="text-amber-400">FINANCE</span></h1>
+            </div>
+            <div class="flex items-center space-x-2">
+                <!-- Smart Reset Button -->
+                <button onclick="resetPaidItemsOnly()" title="Reset paid status for new month" class="px-3 py-1.5 rounded-xl text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold hover:bg-amber-500/20 transition flex items-center space-x-1.5 shadow-md">
+                    <span>↺ Cycle Paid Items</span>
+                </button>
+                <div class="w-9 h-9 rounded-2xl glass-luxury border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs shadow-lg">
+                    MS
+                </div>
+            </div>
+        </header>
+
+        <!-- Summary Hero Card -->
+        <div class="glass-luxury p-6 rounded-3xl shadow-2xl relative overflow-hidden space-y-4 border border-slate-700/40">
+            <div class="absolute -right-12 -top-12 w-36 h-36 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            <div class="absolute -left-12 -bottom-12 w-36 h-36 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+            
+            <div class="flex justify-between items-center relative z-10">
+                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Remaining Balance</span>
+                <span class="text-[10px] bg-red-500/15 text-red-400 border border-red-500/30 px-2.5 py-0.5 rounded-full font-bold">Live Tracking</span>
+            </div>
+            
+            <h2 id="total-remaining" class="text-3xl font-black tracking-tight text-slate-50 relative z-10">RM 0.00</h2>
+            
+            <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800/80 text-xs relative z-10">
+                <div>
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Total Original Amount</span>
+                    <span id="total-initial" class="font-bold text-slate-200 text-sm">RM 0.00</span>
+                </div>
+                <div class="text-right">
+                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Monthly Commitment</span>
+                    <span id="total-monthly" class="font-bold text-amber-400 text-sm gold-glow">RM 0.00</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Backup & Restore Toolbar -->
+        <div class="glass-luxury p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
+            <span class="text-xs text-slate-300 font-semibold px-1">Data Backup</span>
+            <div class="space-x-1.5">
+                <button onclick="exportData()" class="px-3 py-1.5 rounded-xl text-xs bg-slate-800/80 text-emerald-400 hover:bg-slate-700 transition border border-slate-700/60 font-semibold shadow">Export</button>
+                <label class="px-3 py-1.5 rounded-xl text-xs bg-slate-800/80 text-amber-400 hover:bg-slate-700 transition border border-slate-700/60 font-semibold cursor-pointer inline-block shadow">
+                    Import<input type="file" id="import-file" accept=".json" onchange="importData(event)" class="hidden">
+                </label>
+            </div>
+        </div>
+
+        <!-- Add New Commitment Form -->
+        <div class="glass-luxury p-4.5 rounded-3xl space-y-3 shadow-xl">
+            <h3 class="text-xs font-bold text-amber-400 uppercase tracking-widest">➕ Add New Commitment</h3>
+            <input type="text" id="new-name" placeholder="Commitment Name" class="w-full bg-[#030712]/90 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
+            <div class="grid grid-cols-3 gap-2">
+                <input type="text" id="new-due" placeholder="Due (e.g. 5th)" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
+                <input type="number" id="new-initial" placeholder="Original (RM)" step="0.01" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
+                <input type="number" id="new-monthly" placeholder="Monthly (RM)" step="0.01" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
+            </div>
+            <button onclick="addNewCommitment()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-500/20">Save to Portfolio</button>
+        </div>
+
+        <!-- List Controls -->
+        <div class="flex justify-between items-center px-1 pt-2">
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Commitments</h3>
+            <button onclick="toggleShowCompleted()" id="toggle-completed-btn" class="text-[11px] text-amber-400 hover:underline font-semibold">Show completed</button>
+        </div>
+
+        <!-- Commitment List Container -->
+        <div class="space-y-3.5" id="commitment-list">
+            <!-- Dynamic data -->
+        </div>
+    </div>
+
+    <!-- Custom Confirmation Modal -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30 shadow-2xl">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">⚠️</div>
+                <h3 class="text-sm font-bold text-slate-100 uppercase tracking-wider">Confirmation</h3>
+            </div>
+            <p id="confirm-text" class="text-xs text-slate-300 font-medium leading-relaxed"></p>
+            <div class="flex space-x-2 pt-2">
+                <button id="confirm-cancel-btn" class="w-1/2 py-2.5 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Cancel</button>
+                <button id="confirm-ok-btn" class="w-1/2 py-2.5 rounded-xl text-xs bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 transition shadow-lg shadow-amber-500/25">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Edit Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30 shadow-2xl">
+            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider">Edit Commitment Details</h3>
+            <input type="hidden" id="edit-id">
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Commitment Name</label>
+                    <input type="text" id="edit-name" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Due Date</label>
+                    <input type="text" id="edit-due" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Original Amount (RM)</label>
+                    <input type="number" id="edit-initial" step="0.01" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Monthly Payment (RM)</label>
+                    <input type="number" id="edit-monthly" step="0.01" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                </div>
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeEditModal()" class="w-1/2 py-2.5 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Cancel</button>
+                <button onclick="saveEditCommitment()" class="w-1/2 py-2.5 rounded-xl text-xs bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 transition shadow-lg shadow-amber-500/25">Save</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Payment Modal -->
+    <div id="pay-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-emerald-500/30 shadow-2xl">
+            <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider" id="pay-modal-title">Make Payment</h3>
+            <input type="hidden" id="pay-id">
+            <div>
+                <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Payment Amount (RM)</label>
+                <input type="number" id="pay-amount-input" step="0.01" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-sm text-slate-100 font-bold focus:outline-none focus:border-emerald-400">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closePayModal()" class="w-1/2 py-2.5 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Cancel</button>
+                <button onclick="confirmPayment()" class="w-1/2 py-2.5 rounded-xl text-xs bg-emerald-500 text-slate-950 font-extrabold hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/25">Confirm Pay</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const initialCommitments = [
+            { id: 1, name: "AKPK", due: "5th", initial: 40945.76, remaining: 40945.76, monthly: 700.00, history: [] },
+            { id: 2, name: "Loan Motor ADV", due: "18th", initial: 6802.00, remaining: 6802.00, monthly: 358.00, history: [] },
+            { id: 3, name: "Spay Later", due: "10th", initial: 10000.00, remaining: 10000.00, monthly: 2100.00, history: [] },
+            { id: 4, name: "Sloan 1", due: "2nd", initial: 2173.21, remaining: 2173.21, monthly: 311.00, history: [] },
+            { id: 5, name: "Sloan 2", due: "9th", initial: 790.21, remaining: 790.21, monthly: 112.89, history: [] },
+            { id: 6, name: "Sloan 3", due: "12th", initial: 98.29, remaining: 98.29, monthly: 49.17, history: [] },
+            { id: 7, name: "Sloan 4", due: "5th", initial: 2293.06, remaining: 2293.06, monthly: 176.39, history: [] },
+            { id: 8, name: "Sloan 5", due: "4th", initial: 786.68, remaining: 786.68, monthly: 98.33, history: [] },
+            { id: 9, name: "Sloan 6", due: "4th", initial: 1730.68, remaining: 1730.68, monthly: 157.33, history: [] },
+            { id: 10, name: "Sloan 7", due: "3rd", initial: 600.00, remaining: 600.00, monthly: 75.67, history: [] },
+            { id: 11, name: "Atome Card", due: "21st", initial: 2410.00, remaining: 2410.00, monthly: 550.00, history: [] },
+            { id: 12, name: "Atome pay later", due: "4th", initial: 473.52, remaining: 473.52, monthly: 78.92, history: [] },
+            { id: 13, name: "Atome loan", due: "3rd", initial: 2904.99, remaining: 2904.99, monthly: 415.00, history: [] },
+            { id: 14, name: "Atome loan 2", due: "3rd", initial: 1777.49, remaining: 1777.49, monthly: 296.25, history: [] },
+            { id: 15, name: "Tiktok Loan", due: "3rd", initial: 151.36, remaining: 151.36, monthly: 151.36, history: [] },
+            { id: 16, name: "Tiktok Loan 2", due: "4th", initial: 1730.67, remaining: 1730.67, monthly: 157.33, history: [] },
+            { id: 17, name: "Tiktok Paylater", due: "1st", initial: 390.27, remaining: 390.27, monthly: 125.87, history: [] },
+            { id: 18, name: "Chailease", due: "14th", initial: 204.00, remaining: 204.00, monthly: 204.00, history: [] },
+            { id: 19, name: "Belanja Akhdiyat & Elhan", due: "Fixed", initial: 240.00, remaining: 240.00, monthly: 240.00, history: [] },
+            { id: 20, name: "Mama", due: "Fixed", initial: 50.00, remaining: 50.00, monthly: 50.00, history: [] },
+            { id: 21, name: "Rumah Sewa", due: "Fixed", initial: 470.00, remaining: 470.00, monthly: 470.00, history: [] },
+            { id: 22, name: "Api (TNB)", due: "7th", initial: 60.00, remaining: 60.00, monthly: 60.00, history: [] },
+            { id: 23, name: "Air Selangor", due: "17th", initial: 21.00, remaining: 21.00, monthly: 21.00, history: [] },
+            { id: 24, name: "Yayasan Selangor", due: "End of Month", initial: 50.00, remaining: 50.00, monthly: 50.00, history: [] },
+            { id: 25, name: "Jasmin", due: "Fixed", initial: 365.00, remaining: 365.00, monthly: 365.00, history: [] },
+            { id: 26, name: "XOX Internet", due: "18th", initial: 53.00, remaining: 53.00, monthly: 53.00, history: [] },
+            { id: 27, name: "Barang Dapur", due: "Monthly", initial: 150.00, remaining: 150.00, monthly: 150.00, history: [] },
+            { id: 28, name: "Duit Family", due: "Fixed", initial: 50.00, remaining: 50.00, monthly: 50.00, history: [] }
+        ];
+
+        let commitments = JSON.parse(localStorage.getItem('my_commitments_v25')) || initialCommitments;
+        let showCompleted = false;
+
+        function showToast(message, icon = "✨") {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-message').innerText = message;
+            document.getElementById('toast-icon').innerText = icon;
+            
+            toast.classList.remove('opacity-0', '-translate-y-4', 'pointer-events-none');
+            toast.classList.add('opacity-100', 'translate-y-0');
+
+            setTimeout(() => {
+                toast.classList.remove('opacity-100', 'translate-y-0');
+                toast.classList.add('opacity-0', '-translate-y-4', 'pointer-events-none');
+            }, 3000);
+        }
+
+        function showCustomConfirm(message, onConfirm) {
+            const modal = document.getElementById('confirm-modal');
+            const textEl = document.getElementById('confirm-text');
+            const okBtn = document.getElementById('confirm-ok-btn');
+            const cancelBtn = document.getElementById('confirm-cancel-btn');
+
+            textEl.innerText = message;
+            modal.classList.remove('hidden');
+
+            const newOkBtn = okBtn.cloneNode(true);
+            const newCancelBtn = cancelBtn.cloneNode(true);
+            okBtn.parentNode.replaceChild(newOkBtn, okBtn);
+            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
+
+            newOkBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+                onConfirm();
+            });
+
+            newCancelBtn.addEventListener('click', () => {
+                modal.classList.add('hidden');
+            });
+        }
+
+        function saveData() {
+            localStorage.setItem('my_commitments_v25', JSON.stringify(commitments));
+            render();
+        }
+
+        function exportData() {
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(commitments));
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", "vault_elite_finance_backup_" + new Date().toISOString().slice(0,10) + ".json");
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        commitments = imported;
+                        saveData();
+                        showToast("Data successfully restored!", "💾");
+                    } else {
+                        showToast("Invalid file format.", "⚠️");
+                    }
+                } catch (err) {
+                    showToast("Error reading file.", "⚠️");
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function toggleShowCompleted() {
+            showCompleted = !showCompleted;
+            document.getElementById('toggle-completed-btn').innerText = showCompleted ? "Hide completed" : "Show completed";
+            render();
+        }
+
+        function resetPaidItemsOnly() {
+            let resetCount = 0;
+            commitments.forEach(c => {
+                if (c.history && c.history.length > 0) {
+                    if (c.initial === c.monthly) {
+                        c.remaining = c.monthly;
+                    } 
+                    resetCount++;
+                }
+            });
+
+            if (resetCount > 0) {
+                saveData();
+                showToast(`Successfully cycled ${resetCount} paid item(s) for new month!`, "🔄");
+            } else {
+                showToast("No paid commitments found to cycle yet.", "💡");
+            }
+        }
+
+        function resetIndividual(id) {
+            const item = commitments.find(c => c.id === id);
+            if (!item) return;
+            
+            showCustomConfirm(`Reset month status for ${item.name}?`, () => {
+                if (item.initial === item.monthly) {
+                    item.remaining = item.monthly;
+                }
+                saveData();
+                showToast(`Cycled ${item.name} status!`, "🔄");
+            });
+        }
+
+        function toggleHistory(id) {
+            const el = document.getElementById(`history-box-${id}`);
+            if (el) {
+                el.classList.toggle('hidden');
+            }
+        }
+
+        function openPayModal(id) {
+            const item = commitments.find(c => c.id === id);
+            if (!item) return;
+
+            document.getElementById('pay-id').value = item.id;
+            document.getElementById('pay-modal-title').innerText = `Pay: ${item.name}`;
+            document.getElementById('pay-amount-input').value = item.monthly;
+            document.getElementById('pay-modal').classList.remove('hidden');
+        }
+
+        function closePayModal() {
+            document.getElementById('pay-modal').classList.add('hidden');
+        }
+
+        function confirmPayment() {
+            const id = parseInt(document.getElementById('pay-id').value);
+            const payAmount = parseFloat(document.getElementById('pay-amount-input').value);
+
+            if (isNaN(payAmount) || payAmount <= 0) {
+                showToast("Please enter a valid amount!", "⚠️");
+                return;
+            }
+
+            const item = commitments.find(c => c.id === id);
+            if (!item) return;
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+
+            if (!item.history) item.history = [];
+            item.history.unshift({
+                date: `${dateStr}, ${timeStr}`,
+                amount: payAmount
+            });
+
+            item.remaining = Math.max(0, item.remaining - payAmount);
+            closePayModal();
+            saveData();
+            showToast(`Payment recorded for ${item.name}!`, "✅");
+        }
+
+        function deleteHistoryItem(itemId, historyIndex) {
+            const item = commitments.find(c => c.id === itemId);
+            if (!item || !item.history) return;
+
+            showCustomConfirm("Delete this payment record and restore balance?", () => {
+                const historyEntry = item.history[historyIndex];
+                item.remaining += historyEntry.amount;
+                item.history.splice(historyIndex, 1);
+                saveData();
+                showToast("Payment record deleted.", "🗑️");
+            });
+        }
+
+        function deleteCommitment(id) {
+            const item = commitments.find(c => c.id === id);
+            if (!item) return;
+
+            showCustomConfirm(`Permanently delete "${item.name}" from portfolio?`, () => {
+                commitments = commitments.filter(c => c.id !== id);
+                saveData();
+                showToast(`Deleted ${item.name}`, "🗑️");
+            });
+        }
+
+        function addNewCommitment() {
+            const name = document.getElementById('new-name').value.trim();
+            const due = document.getElementById('new-due').value.trim();
+            const initial = parseFloat(document.getElementById('new-initial').value);
+            const monthly = parseFloat(document.getElementById('new-monthly').value);
+
+            if (!name || !due || isNaN(initial) || isNaN(monthly)) {
+                showToast("Please fill in all fields correctly!", "⚠️");
+                return;
+            }
+
+            const newId = commitments.length > 0 ? Math.max(...commitments.map(c => c.id)) + 1 : 1;
+            commitments.push({ id: newId, name, due, initial, remaining: initial, monthly, history: [] });
+
+            document.getElementById('new-name').value = '';
+            document.getElementById('new-due').value = '';
+            document.getElementById('new-initial').value = '';
+            document.getElementById('new-monthly').value = '';
+
+            saveData();
+            showToast("New commitment added successfully!", "➕");
+        }
+
+        function editCommitment(id) {
+            const item = commitments.find(c => c.id === id);
+            if (!item) return;
+
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('edit-name').value = item.name;
+            document.getElementById('edit-due').value = item.due;
+            document.getElementById('edit-initial').value = item.initial;
+            document.getElementById('edit-monthly').value = item.monthly;
+
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        function closeEditModal() {
+            document.getElementById('edit-modal').classList.add('hidden');
+        }
+
+        function saveEditCommitment() {
+            const id = parseInt(document.getElementById('edit-id').value);
+            const name = document.getElementById('edit-name').value.trim();
+            const due = document.getElementById('edit-due').value.trim();
+            const initial = parseFloat(document.getElementById('edit-initial').value);
+            const monthly = parseFloat(document.getElementById('edit-monthly').value);
+
+            if (!name || !due || isNaN(initial) || isNaN(monthly)) {
+                showToast("Please fill in all fields correctly!", "⚠️");
+                return;
+            }
+
+            const item = commitments.find(c => c.id === id);
+            if (item) {
+                item.name = name;
+                item.due = due;
+                item.monthly = monthly;
+                
+                if (item.initial !== initial) {
+                    let diff = initial - item.initial;
+                    item.initial = initial;
+                    item.remaining = Math.max(0, item.remaining + diff);
+                }
+            }
+
+            closeEditModal();
+            saveData();
+            showToast("Changes saved successfully!", "✏️");
+        }
+
+        function render() {
+            const listEl = document.getElementById('commitment-list');
+            listEl.innerHTML = '';
+            
+            let totalInitialSum = 0;
+            let totalRemainingSum = 0;
+            let totalMonthlySum = 0;
+
+            commitments.forEach(c => {
+                totalInitialSum += Number(c.initial) || 0;
+                totalRemainingSum += Number(c.remaining) || 0;
+                if ((Number(c.remaining) || 0) > 0) {
+                    totalMonthlySum += Number(c.monthly) || 0;
+                }
+
+                const isPaidFull = c.remaining <= 0;
+
+                if (isPaidFull && !showCompleted) {
+                    return;
+                }
+
+                let progressPercent = c.initial > 0 ? ((c.initial - c.remaining) / c.initial) * 100 : 0;
+                progressPercent = Math.min(100, Math.max(0, progressPercent));
+
+                let historyHtml = '';
+                if (c.history && c.history.length > 0) {
+                    historyHtml = `
+                        <div class="pt-2 border-t border-slate-800/80">
+                            <button onclick="toggleHistory(${c.id})" class="text-[11px] text-amber-400/90 font-bold hover:underline flex items-center justify-between w-full py-1">
+                                <span>📜 Payment History (${c.history.length})</span>
+                                <span class="text-[10px]">▼ Toggle</span>
+                            </button>
+                            <div id="history-box-${c.id}" class="hidden mt-2 space-y-1.5 bg-[#030712]/70 p-2.5 rounded-2xl border border-slate-800/80 max-h-36 overflow-y-auto">
+                                ${c.history.map((h, idx) => `
+                                    <div class="flex justify-between items-center text-xs bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
+                                        <span class="text-slate-300 text-[11px]">📅 ${h.date}</span>
+                                        <div class="flex items-center space-x-2">
+                                            <span class="font-extrabold text-amber-400 text-xs">+RM ${h.amount.toFixed(2)}</span>
+                                            <button onclick="deleteHistoryItem(${c.id}, ${idx})" title="Delete record" class="text-red-400 hover:text-red-300 px-1 font-bold text-sm">×</button>
+                                        </div>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+
+                listEl.innerHTML += `
+                    <div class="glass-luxury border ${isPaidFull ? 'border-emerald-900/40 opacity-60' : 'border-slate-800/80'} p-4.5 rounded-3xl space-y-3 shadow-xl transition-all">
+                        <div class="flex items-start justify-between">
+                            <div>
+                                <h3 class="font-bold text-sm tracking-tight ${isPaidFull ? 'line-through text-slate-400' : 'text-slate-100'}">${c.name}</h3>
+                                <p class="text-[11px] text-slate-400 font-medium mt-0.5">Due: ${c.due}</p>
+                            </div>
+                            <span class="text-[11px] px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold tracking-tight">
+                                Monthly: RM ${c.monthly.toFixed(2)}
+                            </span>
+                        </div>
+
+                        <!-- Progress Bar -->
+                        <div class="w-full bg-[#030712] rounded-full h-1.5 overflow-hidden border border-slate-800">
+                            <div class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
+                        </div>
+
+                        <div class="flex items-center justify-between text-xs pt-1">
+                            <div>
+                                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Original Amount</span>
+                                <span class="text-slate-300 font-semibold">RM ${Number(c.initial).toFixed(2)}</span>
+                            </div>
+                            <div class="text-right">
+                                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Remaining Balance</span>
+                                <span class="font-extrabold text-sm ${isPaidFull ? 'text-emerald-400' : 'text-red-400'}">RM ${Number(c.remaining).toFixed(2)}</span>
+                            </div>
+                        </div>
+
+                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
+                            <div class="flex space-x-1.5">
+                                <button onclick="editCommitment(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-slate-800/80 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700/60">Edit</button>
+                                <button onclick="resetIndividual(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 font-medium border border-amber-500/30" title="Reset for new month cycle">Cycle</button>
+                                <button onclick="deleteCommitment(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-red-950/50 text-red-400 hover:bg-red-900/50 font-medium border border-red-900/40">Delete</button>
+                            </div>
+                            <div>
+                                <button onclick="openPayModal(${c.id})" class="px-4 py-2 rounded-xl text-xs font-bold transition shadow-md ${isPaidFull ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-amber-500/25'}">
+                                    ${isPaidFull ? 'Paid ✓' : 'Pay This Month'}
+                                </button>
+                            </div>
+                        </div>
+
+                        ${historyHtml}
+                    </div>
+                `;
+            });
+
+            document.getElementById('total-initial').innerText = `RM ${totalInitialSum.toFixed(2)}`;
+            document.getElementById('total-remaining').innerText = `RM ${totalRemainingSum.toFixed(2)}`;
+            document.getElementById('total-monthly').innerText = `RM ${totalMonthlySum.toFixed(2)}`;
+        }
+
+        render();
+    </script>
+</body>
+</html>
