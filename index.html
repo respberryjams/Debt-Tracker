@@ -55,9 +55,10 @@
                 <button onclick="resetPaidItemsOnly()" title="Reset paid status for new month" class="px-3 py-1.5 rounded-xl text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold hover:bg-amber-500/20 transition flex items-center space-x-1.5 shadow-md">
                     <span>Monthly Reset</span>
                 </button>
-                <div class="w-9 h-9 rounded-2xl glass-luxury border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs shadow-lg">
+                <!-- Profile Avatar Button -->
+                <button onclick="openProfileModal()" id="user-avatar-btn" title="Click to change profile" class="w-9 h-9 rounded-2xl glass-luxury border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs shadow-lg hover:bg-amber-500/10 transition">
                     MS
-                </div>
+                </button>
             </div>
         </header>
 
@@ -101,7 +102,7 @@
             <h3 class="text-xs font-bold text-amber-400 uppercase tracking-widest">➕ Add New Commitment</h3>
             <input type="text" id="new-name" placeholder="Commitment Name" class="w-full bg-[#030712]/90 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
             <div class="grid grid-cols-3 gap-2">
-                <input type="text" id="new-due" placeholder="Due (e.g. 5th)" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
+                <input type="number" id="new-due" placeholder="Due (e.g. 5)" min="1" max="31" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
                 <input type="number" id="new-initial" placeholder="Original (RM)" step="0.01" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
                 <input type="number" id="new-monthly" placeholder="Monthly (RM)" step="0.01" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
             </div>
@@ -146,8 +147,8 @@
                     <input type="text" id="edit-name" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
                 </div>
                 <div>
-                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Due Date</label>
-                    <input type="text" id="edit-due" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Due Date (Day e.g. 5)</label>
+                    <input type="number" id="edit-due" min="1" max="31" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
                 </div>
                 <div>
                     <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Original Amount (RM)</label>
@@ -181,14 +182,60 @@
         </div>
     </div>
 
+    <!-- User Profile Modal -->
+    <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30 shadow-2xl">
+            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider">User Profile</h3>
+            <div>
+                <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Your Name / Initials</label>
+                <input type="text" id="profile-name-input" placeholder="e.g. Mohd Saifullah (MS)" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeProfileModal()" class="w-1/2 py-2.5 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Cancel</button>
+                <button onclick="saveProfileName()" class="w-1/2 py-2.5 rounded-xl text-xs bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 transition shadow-lg shadow-amber-500/25">Save</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const initialCommitments = [
             { id: 1, name: "AKPK", due: "5th", initial: 40945.76, remaining: 40945.76, monthly: 700.00, history: [] },
-           
         ];
 
         let commitments = JSON.parse(localStorage.getItem('my_commitments_v26')) || initialCommitments;
         let showCompleted = false;
+
+        // User Profile Management
+        let userProfile = JSON.parse(localStorage.getItem('debt_tracker_user')) || { name: "Mohd Saifullah", initials: "MS" };
+
+        function updateAvatarUI() {
+            const btn = document.getElementById('user-avatar-btn');
+            if (btn) btn.innerText = userProfile.initials;
+        }
+
+        function openProfileModal() {
+            document.getElementById('profile-name-input').value = userProfile.name;
+            document.getElementById('profile-modal').classList.remove('hidden');
+        }
+
+        function closeProfileModal() {
+            document.getElementById('profile-modal').classList.add('hidden');
+        }
+
+        function saveProfileName() {
+            const fullName = document.getElementById('profile-name-input').value.trim();
+            if (!fullName) return;
+
+            const words = fullName.split(' ');
+            let initials = words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : fullName.slice(0, 2).toUpperCase();
+
+            userProfile = { name: fullName, initials: initials };
+            localStorage.setItem('debt_tracker_user', JSON.stringify(userProfile));
+            
+            updateAvatarUI();
+            closeProfileModal();
+            showToast(`Profile updated to ${fullName}`, "👤");
+        }
 
         function showToast(message, icon = "✨") {
             const toast = document.getElementById('toast');
@@ -283,9 +330,9 @@
 
             if (resetCount > 0) {
                 saveData();
-                showToast(`Successfully cycled ${resetCount} paid item(s) for new month!`, "🔄");
+                showToast(`Successfully reset ${resetCount} paid item(s) for new month!`, "🔄");
             } else {
-                showToast("No paid commitments found to cycle yet.", "💡");
+                showToast("No paid commitments found to reset yet.", "💡");
             }
         }
 
@@ -298,7 +345,7 @@
                     item.remaining = item.monthly;
                 }
                 saveData();
-                showToast(`Cycled ${item.name} status!`, "🔄");
+                showToast(`Reset status for ${item.name}!`, "🔄");
             });
         }
 
@@ -375,17 +422,27 @@
             });
         }
 
+        // Format Ordinal Suffix (st, nd, rd, th)
+        function formatOrdinal(n) {
+            const num = parseInt(n);
+            if (isNaN(num)) return n;
+            const s = ["th", "st", "nd", "rd"];
+            const v = num % 100;
+            return num + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
+
         function addNewCommitment() {
             const name = document.getElementById('new-name').value.trim();
-            const due = document.getElementById('new-due').value.trim();
+            const dueInput = document.getElementById('new-due').value.trim();
             const initial = parseFloat(document.getElementById('new-initial').value);
             const monthly = parseFloat(document.getElementById('new-monthly').value);
 
-            if (!name || !due || isNaN(initial) || isNaN(monthly)) {
+            if (!name || !dueInput || isNaN(initial) || isNaN(monthly)) {
                 showToast("Please fill in all fields correctly!", "⚠️");
                 return;
             }
 
+            const due = formatOrdinal(dueInput);
             const newId = commitments.length > 0 ? Math.max(...commitments.map(c => c.id)) + 1 : 1;
             commitments.push({ id: newId, name, due, initial, remaining: initial, monthly, history: [] });
 
@@ -402,9 +459,11 @@
             const item = commitments.find(c => c.id === id);
             if (!item) return;
 
+            const numericDue = parseInt(item.due) || item.due;
+
             document.getElementById('edit-id').value = item.id;
             document.getElementById('edit-name').value = item.name;
-            document.getElementById('edit-due').value = item.due;
+            document.getElementById('edit-due').value = numericDue;
             document.getElementById('edit-initial').value = item.initial;
             document.getElementById('edit-monthly').value = item.monthly;
 
@@ -418,11 +477,11 @@
         function saveEditCommitment() {
             const id = parseInt(document.getElementById('edit-id').value);
             const name = document.getElementById('edit-name').value.trim();
-            const due = document.getElementById('edit-due').value.trim();
+            const dueInput = document.getElementById('edit-due').value.trim();
             const initial = parseFloat(document.getElementById('edit-initial').value);
             const monthly = parseFloat(document.getElementById('edit-monthly').value);
 
-            if (!name || !due || isNaN(initial) || isNaN(monthly)) {
+            if (!name || !dueInput || isNaN(initial) || isNaN(monthly)) {
                 showToast("Please fill in all fields correctly!", "⚠️");
                 return;
             }
@@ -430,7 +489,7 @@
             const item = commitments.find(c => c.id === id);
             if (item) {
                 item.name = name;
-                item.due = due;
+                item.due = formatOrdinal(dueInput);
                 item.monthly = monthly;
                 
                 if (item.initial !== initial) {
@@ -443,6 +502,14 @@
             closeEditModal();
             saveData();
             showToast("Changes saved successfully!", "✏️");
+        }
+
+        function getEstimatedPayoff(remaining, monthly) {
+            if (monthly <= 0 || remaining <= 0) return "Completed / N/A";
+            const monthsNeeded = Math.ceil(remaining / monthly);
+            const targetDate = new Date();
+            targetDate.setMonth(targetDate.getMonth() + monthsNeeded);
+            return targetDate.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
         }
 
         function render() {
@@ -468,6 +535,8 @@
 
                 let progressPercent = c.initial > 0 ? ((c.initial - c.remaining) / c.initial) * 100 : 0;
                 progressPercent = Math.min(100, Math.max(0, progressPercent));
+
+                const payoffEst = getEstimatedPayoff(c.remaining, c.monthly);
 
                 let historyHtml = '';
                 if (c.history && c.history.length > 0) {
@@ -509,7 +578,7 @@
                             <div class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
                         </div>
 
-                        <div class="flex items-center justify-between text-xs pt-1">
+                        <div class="grid grid-cols-2 gap-2 text-xs pt-1">
                             <div>
                                 <span class="text-slate-400 block text-[10px] uppercase font-semibold">Original Amount</span>
                                 <span class="text-slate-300 font-semibold">RM ${Number(c.initial).toFixed(2)}</span>
@@ -520,10 +589,16 @@
                             </div>
                         </div>
 
+                        <!-- Est Payoff Note -->
+                        <div class="bg-[#030712]/60 px-3 py-1.5 rounded-xl border border-slate-800/60 flex justify-between items-center text-[11px]">
+                            <span class="text-slate-400 font-medium">✨ Est. Payoff:</span>
+                            <span class="text-amber-400 font-bold">${isPaidFull ? 'Selesai ✓' : payoffEst}</span>
+                        </div>
+
                         <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
                             <div class="flex space-x-1.5">
                                 <button onclick="editCommitment(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-slate-800/80 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700/60">Edit</button>
-                                <button onclick="resetIndividual(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 font-medium border border-amber-500/30" title="Reset for new month cycle">Cycle</button>
+                                <button onclick="resetIndividual(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 font-medium border border-amber-500/30" title="Reset for new month cycle">Monthly Reset</button>
                                 <button onclick="deleteCommitment(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-red-950/50 text-red-400 hover:bg-red-900/50 font-medium border border-red-900/40">Delete</button>
                             </div>
                             <div>
@@ -543,6 +618,8 @@
             document.getElementById('total-monthly').innerText = `RM ${totalMonthlySum.toFixed(2)}`;
         }
 
+        // Inisialisasi awal UI
+        updateAvatarUI();
         render();
     </script>
 </body>
