@@ -208,21 +208,68 @@
         // User Profile Management
         let userProfile = JSON.parse(localStorage.getItem('debt_tracker_user')) || { name: "Mohd Saifullah", initials: "MS" };
 
+        // Haptic & Audio Feedback System
+        function triggerHaptic(type = 'light') {
+            if (navigator.vibrate) {
+                if (type === 'light') navigator.vibrate(15);
+                if (type === 'success') navigator.vibrate([30, 50, 30]);
+                if (type === 'heavy') navigator.vibrate(50);
+            }
+        }
+
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function playSound(tone = 'click') {
+            try {
+                if (audioCtx.state === 'suspended') {
+                    audioCtx.resume();
+                }
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                const now = audioCtx.currentTime;
+                if (tone === 'click') {
+                    osc.frequency.setValueAtTime(400, now);
+                    gain.gain.setValueAtTime(0.03, now);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
+                    osc.start(now);
+                    osc.stop(now + 0.05);
+                } else if (tone === 'success') {
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    gain.gain.setValueAtTime(0.05, now);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch (e) {
+                // Ignore if audio context restricted by browser policy before first interaction
+            }
+        }
+
         function updateAvatarUI() {
             const btn = document.getElementById('user-avatar-btn');
             if (btn) btn.innerText = userProfile.initials;
         }
 
         function openProfileModal() {
+            triggerHaptic('light');
+            playSound('click');
             document.getElementById('profile-name-input').value = userProfile.name;
             document.getElementById('profile-modal').classList.remove('hidden');
         }
 
         function closeProfileModal() {
+            triggerHaptic('light');
+            playSound('click');
             document.getElementById('profile-modal').classList.add('hidden');
         }
 
         function saveProfileName() {
+            triggerHaptic('success');
+            playSound('success');
             const fullName = document.getElementById('profile-name-input').value.trim();
             if (!fullName) return;
 
@@ -252,6 +299,8 @@
         }
 
         function showCustomConfirm(message, onConfirm) {
+            triggerHaptic('light');
+            playSound('click');
             const modal = document.getElementById('confirm-modal');
             const textEl = document.getElementById('confirm-text');
             const okBtn = document.getElementById('confirm-ok-btn');
@@ -266,11 +315,15 @@
             cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
 
             newOkBtn.addEventListener('click', () => {
+                triggerHaptic('medium');
+                playSound('success');
                 modal.classList.add('hidden');
                 onConfirm();
             });
 
             newCancelBtn.addEventListener('click', () => {
+                triggerHaptic('light');
+                playSound('click');
                 modal.classList.add('hidden');
             });
         }
@@ -281,6 +334,8 @@
         }
 
         function exportData() {
+            triggerHaptic('success');
+            playSound('success');
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(commitments));
             const downloadAnchor = document.createElement('a');
             downloadAnchor.setAttribute("href", dataStr);
@@ -300,6 +355,8 @@
                     if (Array.isArray(imported)) {
                         commitments = imported;
                         saveData();
+                        triggerHaptic('success');
+                        playSound('success');
                         showToast("Data successfully restored!", "💾");
                     } else {
                         showToast("Invalid file format.", "⚠️");
@@ -312,6 +369,8 @@
         }
 
         function toggleShowCompleted() {
+            triggerHaptic('light');
+            playSound('click');
             showCompleted = !showCompleted;
             document.getElementById('toggle-completed-btn').innerText = showCompleted ? "Hide completed" : "Show completed";
             render();
@@ -329,9 +388,13 @@
             });
 
             if (resetCount > 0) {
+                triggerHaptic('success');
+                playSound('success');
                 saveData();
                 showToast(`Successfully reset ${resetCount} paid item(s) for new month!`, "🔄");
             } else {
+                triggerHaptic('light');
+                playSound('click');
                 showToast("No paid commitments found to reset yet.", "💡");
             }
         }
@@ -350,6 +413,8 @@
         }
 
         function toggleHistory(id) {
+            triggerHaptic('light');
+            playSound('click');
             const el = document.getElementById(`history-box-${id}`);
             if (el) {
                 el.classList.toggle('hidden');
@@ -357,6 +422,8 @@
         }
 
         function openPayModal(id) {
+            triggerHaptic('light');
+            playSound('click');
             const item = commitments.find(c => c.id === id);
             if (!item) return;
 
@@ -367,6 +434,8 @@
         }
 
         function closePayModal() {
+            triggerHaptic('light');
+            playSound('click');
             document.getElementById('pay-modal').classList.add('hidden');
         }
 
@@ -375,6 +444,7 @@
             const payAmount = parseFloat(document.getElementById('pay-amount-input').value);
 
             if (isNaN(payAmount) || payAmount <= 0) {
+                triggerHaptic('heavy');
                 showToast("Please enter a valid amount!", "⚠️");
                 return;
             }
@@ -395,6 +465,9 @@
             item.remaining = Math.max(0, item.remaining - payAmount);
             closePayModal();
             saveData();
+            
+            triggerHaptic('success');
+            playSound('success');
             showToast(`Payment recorded for ${item.name}!`, "✅");
         }
 
@@ -438,6 +511,7 @@
             const monthly = parseFloat(document.getElementById('new-monthly').value);
 
             if (!name || !dueInput || isNaN(initial) || isNaN(monthly)) {
+                triggerHaptic('heavy');
                 showToast("Please fill in all fields correctly!", "⚠️");
                 return;
             }
@@ -452,10 +526,14 @@
             document.getElementById('new-monthly').value = '';
 
             saveData();
+            triggerHaptic('success');
+            playSound('success');
             showToast("New commitment added successfully!", "➕");
         }
 
         function editCommitment(id) {
+            triggerHaptic('light');
+            playSound('click');
             const item = commitments.find(c => c.id === id);
             if (!item) return;
 
@@ -471,6 +549,8 @@
         }
 
         function closeEditModal() {
+            triggerHaptic('light');
+            playSound('click');
             document.getElementById('edit-modal').classList.add('hidden');
         }
 
@@ -482,6 +562,7 @@
             const monthly = parseFloat(document.getElementById('edit-monthly').value);
 
             if (!name || !dueInput || isNaN(initial) || isNaN(monthly)) {
+                triggerHaptic('heavy');
                 showToast("Please fill in all fields correctly!", "⚠️");
                 return;
             }
@@ -501,6 +582,8 @@
 
             closeEditModal();
             saveData();
+            triggerHaptic('success');
+            playSound('success');
             showToast("Changes saved successfully!", "✏️");
         }
 
