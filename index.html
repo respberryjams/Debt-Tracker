@@ -107,9 +107,9 @@
             <span class="text-xs text-slate-300 font-semibold px-1">Data Backup</span>
             <div class="space-x-1.5">
                 <button onclick="exportData()" class="px-3 py-1.5 rounded-xl text-xs bg-slate-800/80 text-emerald-400 hover:bg-slate-700 transition border border-slate-700/60 font-semibold shadow">Export</button>
-                <!-- accept="*/*" supaya semua fail backup terang dan boleh ditekan di telefon -->
+                <!-- accept=".txt,text/plain" memastikan fail txt sentiasa terang dan boleh ditekan di telefon -->
                 <label class="px-3 py-1.5 rounded-xl text-xs bg-slate-800/80 text-amber-400 hover:bg-slate-700 transition border border-slate-700/60 font-semibold cursor-pointer inline-block shadow">
-                    Import<input type="file" id="import-file" accept="*/*" onchange="importData(event)" class="hidden">
+                    Import<input type="file" id="import-file" accept=".txt,text/plain" onchange="importData(event)" class="hidden">
                 </label>
             </div>
         </div>
@@ -367,17 +367,18 @@
             render();
         }
 
+        // Eksport dalam format .txt supaya sentiasa boleh dibaca & dipilih di telefon
         function exportData() {
             triggerHaptic('success');
             playSound('success');
             try {
                 const dataStr = JSON.stringify(commitments, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
+                const blob = new Blob([dataStr], { type: 'text/plain;charset=utf-8' });
                 const url = URL.createObjectURL(blob);
                 
                 const downloadAnchor = document.createElement('a');
                 downloadAnchor.href = url;
-                downloadAnchor.download = "vault_elite_finance_backup_" + new Date().toISOString().slice(0,10) + ".json";
+                downloadAnchor.download = "vault_elite_finance_backup_" + new Date().toISOString().slice(0,10) + ".txt";
                 document.body.appendChild(downloadAnchor);
                 downloadAnchor.click();
                 
@@ -386,12 +387,13 @@
                     URL.revokeObjectURL(url);
                 }, 100);
                 
-                showToast("Backup file downloaded!", "💾");
+                showToast("Backup file downloaded (.txt)!", "💾");
             } catch (err) {
                 showToast("Export failed.", "⚠️");
             }
         }
 
+        // Import fail .txt
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -412,7 +414,7 @@
                         showToast("Invalid data structure in file.", "⚠️");
                     }
                 } catch (err) {
-                    showToast("Could not parse JSON file.", "⚠️");
+                    showToast("Could not parse backup file.", "⚠️");
                 }
                 event.target.value = '';
             };
