@@ -109,10 +109,18 @@
             <button onclick="addNewCommitment()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-500/20">Save to Portfolio</button>
         </div>
 
-        <!-- List Controls -->
-        <div class="flex justify-between items-center px-1 pt-2">
-            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Commitments</h3>
-            <button onclick="toggleShowCompleted()" id="toggle-completed-btn" class="text-[11px] text-amber-400 hover:underline font-semibold">Show completed</button>
+        <!-- List Controls & Sorting Bar -->
+        <div class="space-y-2 pt-2">
+            <div class="flex justify-between items-center px-1">
+                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Commitments</h3>
+                <button onclick="toggleShowCompleted()" id="toggle-completed-btn" class="text-[11px] text-amber-400 hover:underline font-semibold">Show completed</button>
+            </div>
+            <!-- Sorting Buttons Bar (Hanya Due Date & Highest Bal) -->
+            <div class="flex items-center space-x-1.5 overflow-x-auto py-1 scrollbar-none text-[11px]">
+                <span class="text-slate-400 text-[10px] uppercase font-bold pr-1">Sort:</span>
+                <button onclick="setSortMode('due')" id="sort-btn-due" class="px-2.5 py-1 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300">Due Date</button>
+                <button onclick="setSortMode('highest-balance')" id="sort-btn-highest-balance" class="px-2.5 py-1 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300">Highest Bal</button>
+            </div>
         </div>
 
         <!-- Commitment List Container -->
@@ -204,6 +212,7 @@
 
         let commitments = JSON.parse(localStorage.getItem('my_commitments_v26')) || initialCommitments;
         let showCompleted = false;
+        let currentSortMode = localStorage.getItem('debt_tracker_sort') || 'due';
 
         // User Profile Management
         let userProfile = JSON.parse(localStorage.getItem('debt_tracker_user')) || { name: "Mohd Saifullah", initials: "MS" };
@@ -282,6 +291,14 @@
             updateAvatarUI();
             closeProfileModal();
             showToast(`Profile updated to ${fullName}`, "👤");
+        }
+
+        function setSortMode(mode) {
+            triggerHaptic('light');
+            playSound('click');
+            currentSortMode = mode;
+            localStorage.setItem('debt_tracker_sort', mode);
+            render();
         }
 
         function showToast(message, icon = "✨") {
@@ -596,6 +613,18 @@
         }
 
         function render() {
+            // Update active state of sorting buttons UI (Hanya due & highest-balance)
+            ['due', 'highest-balance'].forEach(m => {
+                const b = document.getElementById(`sort-btn-${m}`);
+                if (b) {
+                    if (m === currentSortMode) {
+                        b.className = "px-2.5 py-1 rounded-xl font-bold transition border border-amber-500/40 bg-amber-500/20 text-amber-400 shadow-sm";
+                    } else {
+                        b.className = "px-2.5 py-1 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 hover:bg-slate-700";
+                    }
+                }
+            });
+
             const listEl = document.getElementById('commitment-list');
             listEl.innerHTML = '';
             
@@ -603,7 +632,17 @@
             let totalRemainingSum = 0;
             let totalMonthlySum = 0;
 
-            commitments.forEach(c => {
+            // Sort commitments array based on selected mode
+            let sortedCommitments = [...commitments];
+            sortedCommitments.sort((a, b) => {
+                if (currentSortMode === 'highest-balance') {
+                    return b.remaining - a.remaining;
+                }
+                // Default fallback sort is 'due'
+                return (parseInt(a.due) || 0) - (parseInt(b.due) || 0);
+            });
+
+            sortedCommitments.forEach(c => {
                 totalInitialSum += Number(c.initial) || 0;
                 totalRemainingSum += Number(c.remaining) || 0;
                 if ((Number(c.remaining) || 0) > 0) {
