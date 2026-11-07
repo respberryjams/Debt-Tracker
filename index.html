@@ -107,9 +107,8 @@
             <span class="text-xs text-slate-300 font-semibold px-1">Data Backup</span>
             <div class="space-x-1.5">
                 <button onclick="exportData()" class="px-3 py-1.5 rounded-xl text-xs bg-slate-800/80 text-emerald-400 hover:bg-slate-700 transition border border-slate-700/60 font-semibold shadow">Export</button>
-                <!-- accept=".txt,text/plain" memastikan fail txt sentiasa terang dan boleh ditekan di telefon -->
                 <label class="px-3 py-1.5 rounded-xl text-xs bg-slate-800/80 text-amber-400 hover:bg-slate-700 transition border border-slate-700/60 font-semibold cursor-pointer inline-block shadow">
-                    Import<input type="file" id="import-file" accept=".txt,text/plain" onchange="importData(event)" class="hidden">
+                    Import<input type="file" id="import-file" accept=".json,application/json,text/plain,*/*" onchange="importData(event)" class="hidden">
                 </label>
             </div>
         </div>
@@ -127,16 +126,16 @@
         </div>
 
         <!-- List Controls & Sorting Bar -->
-        <div class="space-y-2 pt-2">
+        <div class="space-y-2.5 pt-2">
             <div class="flex justify-between items-center px-1">
                 <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Commitments</h3>
                 <button onclick="toggleShowCompleted()" id="toggle-completed-btn" class="text-[11px] text-amber-400 hover:underline font-semibold">Show completed</button>
             </div>
-            <!-- Sorting Buttons Bar (Due Date & Highest Bal sahaja) -->
-            <div class="flex items-center space-x-1.5 overflow-x-auto py-1 scrollbar-none text-[11px]">
-                <span class="text-slate-400 text-[10px] uppercase font-bold pr-1">Sort:</span>
-                <button onclick="setSortMode('due')" id="sort-btn-due" class="px-2.5 py-1 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300">Due Date</button>
-                <button onclick="setSortMode('highest-balance')" id="sort-btn-highest-balance" class="px-2.5 py-1 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300">Highest Bal</button>
+            <!-- Sorting Buttons Bar -->
+            <div class="grid grid-cols-3 gap-2 text-xs">
+                <button onclick="setSortMode('due')" id="sort-btn-due" class="py-2 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 text-center shadow">📅 Due Date</button>
+                <button onclick="setSortMode('highest-balance')" id="sort-btn-highest-balance" class="py-2 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 text-center shadow">💰 Highest Bal</button>
+                <button onclick="setSortMode('lowest-balance')" id="sort-btn-lowest-balance" class="py-2 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 text-center shadow">⚡ Lowest Bal</button>
             </div>
         </div>
 
@@ -367,18 +366,17 @@
             render();
         }
 
-        // Eksport dalam format .txt supaya sentiasa boleh dibaca & dipilih di telefon
         function exportData() {
             triggerHaptic('success');
             playSound('success');
             try {
                 const dataStr = JSON.stringify(commitments, null, 2);
-                const blob = new Blob([dataStr], { type: 'text/plain;charset=utf-8' });
+                const blob = new Blob([dataStr], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 
                 const downloadAnchor = document.createElement('a');
                 downloadAnchor.href = url;
-                downloadAnchor.download = "vault_elite_finance_backup_" + new Date().toISOString().slice(0,10) + ".txt";
+                downloadAnchor.download = "vault_elite_finance_backup_" + new Date().toISOString().slice(0,10) + ".json";
                 document.body.appendChild(downloadAnchor);
                 downloadAnchor.click();
                 
@@ -387,13 +385,12 @@
                     URL.revokeObjectURL(url);
                 }, 100);
                 
-                showToast("Backup file downloaded (.txt)!", "💾");
+                showToast("Backup file downloaded (.json)!", "💾");
             } catch (err) {
                 showToast("Export failed.", "⚠️");
             }
         }
 
-        // Import fail .txt
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -414,7 +411,7 @@
                         showToast("Invalid data structure in file.", "⚠️");
                     }
                 } catch (err) {
-                    showToast("Could not parse backup file.", "⚠️");
+                    showToast("Could not parse JSON file.", "⚠️");
                 }
                 event.target.value = '';
             };
@@ -433,13 +430,52 @@
             render();
         }
 
+        // Auto-Reset Automatik (Tanpa ayat cringe)
+        function checkAutoMonthlyReset() {
+            const now = new Date();
+            const currentMonthKey = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0');
+            const lastResetMonth = localStorage.getItem('last_auto_reset_month');
+
+            if (lastResetMonth !== currentMonthKey) {
+                let resetCount = 0;
+                commitments.forEach(c => {
+                    if (c.history && c.history.length > 0) {
+                        c.history.forEach(h => {
+                            if (h.monthKey) {
+                                h.monthKey = "RESET_BY_AUTO_RESET";
+                            }
+                        });
+                        if (c.initial === c.monthly) {
+                            c.remaining = c.monthly;
+                        }
+                        resetCount++;
+                    }
+                });
+
+                localStorage.setItem('last_auto_reset_month', currentMonthKey);
+                saveData();
+
+                if (resetCount > 0) {
+                    showToast("Monthly commitments reset for a new cycle", "📅");
+                }
+            }
+        }
+
         function resetPaidItemsOnly() {
+            const currentMonthYearStr = new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
             let resetCount = 0;
+
             commitments.forEach(c => {
                 if (c.history && c.history.length > 0) {
+                    c.history.forEach(h => {
+                        if (h.monthKey === currentMonthYearStr) {
+                            h.monthKey = "RESET_BY_MONTHLY_RESET";
+                        }
+                    });
+
                     if (c.initial === c.monthly) {
                         c.remaining = c.monthly;
-                    } 
+                    }
                     resetCount++;
                 }
             });
@@ -448,7 +484,7 @@
                 triggerHaptic('success');
                 playSound('success');
                 saveData();
-                showToast(`Successfully reset ${resetCount} paid item(s) for new month!`, "🔄");
+                showToast(`Monthly reset completed for ${resetCount} item(s)!`, "🔄");
             } else {
                 triggerHaptic('light');
                 playSound('click');
@@ -461,6 +497,14 @@
             if (!item) return;
             
             showCustomConfirm(`Reset month status for ${item.name}?`, () => {
+                const currentMonthYearStr = new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+                if (item.history) {
+                    item.history.forEach(h => {
+                        if (h.monthKey === currentMonthYearStr) {
+                            h.monthKey = "RESET_BY_MONTHLY_RESET";
+                        }
+                    });
+                }
                 if (item.initial === item.monthly) {
                     item.remaining = item.monthly;
                 }
@@ -512,11 +556,13 @@
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
             const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const currentMonthYear = now.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
 
             if (!item.history) item.history = [];
             item.history.unshift({
                 date: `${dateStr}, ${timeStr}`,
-                amount: payAmount
+                amount: payAmount,
+                monthKey: currentMonthYear
             });
 
             item.remaining = Math.max(0, item.remaining - payAmount);
@@ -653,14 +699,14 @@
         }
 
         function render() {
-            // Update active state of sorting buttons UI (Hanya due & highest-balance)
-            ['due', 'highest-balance'].forEach(m => {
+            // Update active state of sorting buttons UI
+            ['due', 'highest-balance', 'lowest-balance'].forEach(m => {
                 const b = document.getElementById(`sort-btn-${m}`);
                 if (b) {
                     if (m === currentSortMode) {
-                        b.className = "px-2.5 py-1 rounded-xl font-bold transition border border-amber-500/40 bg-amber-500/20 text-amber-400 shadow-sm";
+                        b.className = "py-2 rounded-xl font-bold transition border border-amber-500/40 bg-amber-500/20 text-amber-400 text-center shadow-sm";
                     } else {
-                        b.className = "px-2.5 py-1 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 hover:bg-slate-700";
+                        b.className = "py-2 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 text-center hover:bg-slate-700 shadow";
                     }
                 }
             });
@@ -677,10 +723,14 @@
             sortedCommitments.sort((a, b) => {
                 if (currentSortMode === 'highest-balance') {
                     return b.remaining - a.remaining;
+                } else if (currentSortMode === 'lowest-balance') {
+                    return a.remaining - b.remaining;
                 }
-                // Default fallback sort is 'due'
                 return (parseInt(a.due) || 0) - (parseInt(b.due) || 0);
             });
+
+            let visibleCount = 0;
+            const currentMonthYearStr = new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
 
             sortedCommitments.forEach(c => {
                 totalInitialSum += Number(c.initial) || 0;
@@ -690,10 +740,13 @@
                 }
 
                 const isPaidFull = c.remaining <= 0;
+                const hasPaidThisMonth = c.history && c.history.some(h => h.monthKey === currentMonthYearStr);
 
-                if (isPaidFull && !showCompleted) {
+                if ((isPaidFull || hasPaidThisMonth) && !showCompleted) {
                     return;
                 }
+
+                visibleCount++;
 
                 let progressPercent = c.initial > 0 ? ((c.initial - c.remaining) / c.initial) * 100 : 0;
                 progressPercent = Math.min(100, Math.max(0, progressPercent));
@@ -754,7 +807,7 @@
                         <!-- Est Payoff Note -->
                         <div class="bg-[#030712]/60 px-3 py-1.5 rounded-xl border border-slate-800/60 flex justify-between items-center text-[11px]">
                             <span class="text-slate-400 font-medium">✨ Est. Payoff:</span>
-                            <span class="text-amber-400 font-bold">${isPaidFull ? 'Selesai ✓' : payoffEst}</span>
+                            <span class="text-amber-400 font-bold">${isPaidFull ? 'Completed ✓' : payoffEst}</span>
                         </div>
 
                         <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
@@ -775,13 +828,24 @@
                 `;
             });
 
+            if (visibleCount === 0) {
+                listEl.innerHTML = `
+                    <div class="glass-luxury p-6 rounded-3xl text-center text-slate-400 text-xs space-y-2 border border-slate-800">
+                        <p class="text-base">🎉</p>
+                        <p class="font-semibold">All active commitments have been paid for this month!</p>
+                        <p class="text-[10px] text-slate-500">Tap "Show completed" above to view the full list.</p>
+                    </div>
+                `;
+            }
+
             document.getElementById('total-initial').innerText = `RM ${totalInitialSum.toFixed(2)}`;
             document.getElementById('total-remaining').innerText = `RM ${totalRemainingSum.toFixed(2)}`;
             document.getElementById('total-monthly').innerText = `RM ${totalMonthlySum.toFixed(2)}`;
         }
 
-        // Inisialisasi awal UI
+        // Inisialisasi awal UI & Semakan Auto-Reset Automatik
         updateAvatarUI();
+        checkAutoMonthlyReset();
         render();
     </script>
 </body>
