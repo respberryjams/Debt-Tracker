@@ -72,7 +72,7 @@
                     <span>Monthly Reset</span>
                 </button>
                 <!-- Profile Avatar Button -->
-                <button onclick="openProfileModal()" id="user-avatar-btn" title="Click to change profile" class="w-9 h-9 rounded-2xl glass-luxury border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs shadow-lg hover:bg-amber-500/10 transition">
+                <button onclick="openProfileModal()" id="user-avatar-btn" title="Click to change profile & settings" class="w-9 h-9 rounded-2xl glass-luxury border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs shadow-lg hover:bg-amber-500/10 transition">
                     MS
                 </button>
             </div>
@@ -206,15 +206,27 @@
         </div>
     </div>
 
-    <!-- User Profile Modal -->
+    <!-- User Profile & Settings Modal -->
     <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30 shadow-2xl">
-            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider">User Profile</h3>
-            <div>
-                <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Your Name / Initials</label>
-                <input type="text" id="profile-name-input" placeholder="e.g. Mohd Saifullah (MS)" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider">User Profile & Settings</h3>
+            
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Your Name / Initials</label>
+                    <input type="text" id="profile-name-input" placeholder="e.g. Mohd Saifullah (MS)" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                </div>
+
+                <!-- Automatic Monthly Reset Setting -->
+                <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-200">Automatic Monthly Reset</span>
+                    <button onclick="toggleAutoResetSetting()" id="auto-reset-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition shadow">
+                        ON
+                    </button>
+                </div>
             </div>
-            <div class="flex space-x-2 pt-2">
+
+            <div class="flex space-x-2 pt-3">
                 <button onclick="closeProfileModal()" class="w-1/2 py-2.5 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Cancel</button>
                 <button onclick="saveProfileName()" class="w-1/2 py-2.5 rounded-xl text-xs bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 transition shadow-lg shadow-amber-500/25">Save</button>
             </div>
@@ -230,8 +242,8 @@
         let showCompleted = false;
         let currentSortMode = localStorage.getItem('debt_tracker_sort') || 'due';
 
-        // User Profile Management
-        let userProfile = JSON.parse(localStorage.getItem('debt_tracker_user')) || { name: "Mohd Saifullah", initials: "MS" };
+        // User Profile & Settings Management
+        let userProfile = JSON.parse(localStorage.getItem('debt_tracker_user')) || { name: "Mohd Saifullah", initials: "MS", autoReset: true };
 
         // Haptic & Audio Feedback System
         function triggerHaptic(type = 'light') {
@@ -279,10 +291,30 @@
             if (btn) btn.innerText = userProfile.initials;
         }
 
+        function updateAutoResetToggleUI() {
+            const btn = document.getElementById('auto-reset-toggle-btn');
+            if (!btn) return;
+            if (userProfile.autoReset) {
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow";
+                btn.innerText = "ON";
+            } else {
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-slate-800 text-slate-500 border border-slate-700 shadow";
+                btn.innerText = "OFF";
+            }
+        }
+
+        function toggleAutoResetSetting() {
+            triggerHaptic('light');
+            playSound('click');
+            userProfile.autoReset = !userProfile.autoReset;
+            updateAutoResetToggleUI();
+        }
+
         function openProfileModal() {
             triggerHaptic('light');
             playSound('click');
             document.getElementById('profile-name-input').value = userProfile.name;
+            updateAutoResetToggleUI();
             document.getElementById('profile-modal').classList.remove('hidden');
         }
 
@@ -301,12 +333,14 @@
             const words = fullName.split(' ');
             let initials = words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : fullName.slice(0, 2).toUpperCase();
 
-            userProfile = { name: fullName, initials: initials };
+            userProfile.name = fullName;
+            userProfile.initials = initials;
+
             localStorage.setItem('debt_tracker_user', JSON.stringify(userProfile));
             
             updateAvatarUI();
             closeProfileModal();
-            showToast(`Profile updated to ${fullName}`, "👤");
+            showToast(`Profile & settings updated successfully`, "👤");
         }
 
         function setSortMode(mode) {
@@ -430,8 +464,10 @@
             render();
         }
 
-        // Auto-Reset Automatik (Tanpa ayat cringe)
+        // Auto-Reset Automatik (Hanya jalan jika user ON-kan tetapan di profile)
         function checkAutoMonthlyReset() {
+            if (!userProfile.autoReset) return;
+
             const now = new Date();
             const currentMonthKey = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0');
             const lastResetMonth = localStorage.getItem('last_auto_reset_month');
