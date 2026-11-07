@@ -85,7 +85,12 @@
             
             <div class="flex justify-between items-center relative z-10">
                 <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Remaining Balance</span>
-                <span class="text-[10px] bg-red-500/15 text-red-400 border border-red-500/30 px-2.5 py-0.5 rounded-full font-bold">Live Tracking</span>
+                <!-- Privacy / Stealth Toggle Button (Gaya MAE/Maybank) -->
+                <button onclick="toggleStealthMode()" id="stealth-badge" title="Toggle Balance Visibility" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full font-bold transition hover:bg-slate-800 active:scale-95 shadow flex items-center space-x-1.5">
+                    <svg id="eye-icon-open" class="w-3.5 h-3.5 fill-current text-slate-400" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                    <svg id="eye-icon-closed" class="w-3.5 h-3.5 fill-current text-amber-400 hidden" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.17c0-1.66-1.34-3-3-3l-.17.02z"/></svg>
+                    <span id="stealth-badge-text">Hide balance</span>
+                </button>
             </div>
             
             <h2 id="total-remaining" class="text-3xl font-black tracking-tight text-slate-50 relative z-10">RM 0.00</h2>
@@ -241,6 +246,7 @@
         let commitments = JSON.parse(localStorage.getItem('my_commitments_v26')) || initialCommitments;
         let showCompleted = false;
         let currentSortMode = localStorage.getItem('debt_tracker_sort') || 'due';
+        let stealthMode = false;
 
         // User Profile & Settings Management
         let userProfile = JSON.parse(localStorage.getItem('debt_tracker_user')) || { name: "Mohd Saifullah", initials: "MS", autoReset: true };
@@ -308,6 +314,32 @@
             playSound('click');
             userProfile.autoReset = !userProfile.autoReset;
             updateAutoResetToggleUI();
+        }
+
+        function toggleStealthMode() {
+            triggerHaptic('light');
+            playSound('click');
+            stealthMode = !stealthMode;
+            
+            const badge = document.getElementById('stealth-badge');
+            const badgeText = document.getElementById('stealth-badge-text');
+            const eyeOpen = document.getElementById('eye-icon-open');
+            const eyeClosed = document.getElementById('eye-icon-closed');
+
+            if (stealthMode) {
+                badge.className = "text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/40 px-2.5 py-1 rounded-full font-bold transition hover:scale-105 active:scale-95 shadow flex items-center space-x-1.5";
+                badgeText.innerText = "Show balance";
+                eyeOpen.classList.add('hidden');
+                eyeClosed.classList.remove('hidden');
+                showToast("Balances hidden", "🔒");
+            } else {
+                badge.className = "text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full font-bold transition hover:bg-slate-800 active:scale-95 shadow flex items-center space-x-1.5";
+                badgeText.innerText = "Hide balance";
+                eyeClosed.classList.add('hidden');
+                eyeOpen.classList.remove('hidden');
+                showToast("Balances visible", "👁️");
+            }
+            render();
         }
 
         function openProfileModal() {
@@ -802,7 +834,7 @@
                                     <div class="flex justify-between items-center text-xs bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
                                         <span class="text-slate-300 text-[11px]">📅 ${h.date}</span>
                                         <div class="flex items-center space-x-2">
-                                            <span class="font-extrabold text-amber-400 text-xs">+RM ${h.amount.toFixed(2)}</span>
+                                            <span class="font-extrabold text-amber-400 text-xs">+${stealthMode ? 'RM •••••' : 'RM ' + h.amount.toFixed(2)}</span>
                                             <button onclick="deleteHistoryItem(${c.id}, ${idx})" title="Delete record" class="text-red-400 hover:text-red-300 px-1 font-bold text-sm">×</button>
                                         </div>
                                     </div>
@@ -812,6 +844,10 @@
                     `;
                 }
 
+                const displayInitial = stealthMode ? 'RM ••••••' : `RM ${Number(c.initial).toFixed(2)}`;
+                const displayRemaining = stealthMode ? 'RM ••••••' : `RM ${Number(c.remaining).toFixed(2)}`;
+                const displayMonthly = stealthMode ? 'RM •••' : `RM ${c.monthly.toFixed(2)}`;
+
                 listEl.innerHTML += `
                     <div class="glass-luxury border ${isPaidFull ? 'border-emerald-900/40 opacity-60' : 'border-slate-800/80'} p-4.5 rounded-3xl space-y-3 shadow-xl transition-all">
                         <div class="flex items-start justify-between">
@@ -820,7 +856,7 @@
                                 <p class="text-[11px] text-slate-400 font-medium mt-0.5">Due: ${c.due}</p>
                             </div>
                             <span class="text-[11px] px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold tracking-tight">
-                                Monthly: RM ${c.monthly.toFixed(2)}
+                                Monthly: ${displayMonthly}
                             </span>
                         </div>
 
@@ -832,18 +868,18 @@
                         <div class="grid grid-cols-2 gap-2 text-xs pt-1">
                             <div>
                                 <span class="text-slate-400 block text-[10px] uppercase font-semibold">Original Amount</span>
-                                <span class="text-slate-300 font-semibold">RM ${Number(c.initial).toFixed(2)}</span>
+                                <span class="text-slate-300 font-semibold">${displayInitial}</span>
                             </div>
                             <div class="text-right">
                                 <span class="text-slate-400 block text-[10px] uppercase font-semibold">Remaining Balance</span>
-                                <span class="font-extrabold text-sm ${isPaidFull ? 'text-emerald-400' : 'text-red-400'}">RM ${Number(c.remaining).toFixed(2)}</span>
+                                <span class="font-extrabold text-sm ${isPaidFull ? 'text-emerald-400' : 'text-red-400'}">${displayRemaining}</span>
                             </div>
                         </div>
 
                         <!-- Est Payoff Note -->
                         <div class="bg-[#030712]/60 px-3 py-1.5 rounded-xl border border-slate-800/60 flex justify-between items-center text-[11px]">
                             <span class="text-slate-400 font-medium">✨ Est. Payoff:</span>
-                            <span class="text-amber-400 font-bold">${isPaidFull ? 'Completed ✓' : payoffEst}</span>
+                            <span class="text-amber-400 font-bold">${isPaidFull ? 'Completed ✓' : (stealthMode ? '••••••' : payoffEst)}</span>
                         </div>
 
                         <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
@@ -874,9 +910,10 @@
                 `;
             }
 
-            document.getElementById('total-initial').innerText = `RM ${totalInitialSum.toFixed(2)}`;
-            document.getElementById('total-remaining').innerText = `RM ${totalRemainingSum.toFixed(2)}`;
-            document.getElementById('total-monthly').innerText = `RM ${totalMonthlySum.toFixed(2)}`;
+            // Paparan Header / Card Utama (Sokong Stealth Mode)
+            document.getElementById('total-initial').innerText = stealthMode ? 'RM ••••••' : `RM ${totalInitialSum.toFixed(2)}`;
+            document.getElementById('total-remaining').innerText = stealthMode ? 'RM ••••••' : `RM ${totalRemainingSum.toFixed(2)}`;
+            document.getElementById('total-monthly').innerText = stealthMode ? 'RM •••••' : `RM ${totalMonthlySum.toFixed(2)}`;
         }
 
         // Inisialisasi awal UI & Semakan Auto-Reset Automatik
