@@ -2,12 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#050508">
     <title>Vault — Elite Finance Tracker</title>
-    <!-- Ikon logo mewah untuk paparan web & shortcut telefon -->
     <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/96/expensive-2.png">
     <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/96/expensive-2.png">
-    <!-- PWA Manifest secara Inline untuk sokongan Install App penuh -->
     <link rel="manifest" href='data:application/manifest+json,{
       "name": "Vault Elite Finance Tracker",
       "short_name": "Vault",
@@ -24,633 +23,819 @@
       ]
     }'>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; }
-        .luxury-bg {
-            background-color: #050508;
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(212, 175, 55, 0.06) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(15, 23, 42, 1) 0px, transparent 100%);
+        :root {
+            --gold: #f5c451;
+            --gold-deep: #d4a017;
+            --emerald: #34d399;
+            --ruby: #fb7185;
         }
+        * { -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #050508; overflow-x: hidden; }
+        .num { font-family: 'Sora', sans-serif; font-variant-numeric: tabular-nums; }
+
+        /* ---------- Aurora animated background ---------- */
+        .aurora { position: fixed; inset: 0; z-index: -2; overflow: hidden; background: #050508; }
+        .aurora span {
+            position: absolute; border-radius: 9999px; filter: blur(90px); opacity: .55;
+            animation: drift 22s ease-in-out infinite alternate;
+        }
+        .aurora .a1 { width: 420px; height: 420px; background: rgba(16,185,129,.35); top: -120px; left: -120px; }
+        .aurora .a2 { width: 380px; height: 380px; background: rgba(245,196,81,.28); top: 20%; right: -140px; animation-duration: 28s; animation-delay: -6s; }
+        .aurora .a3 { width: 460px; height: 460px; background: rgba(99,102,241,.22); bottom: -180px; left: 10%; animation-duration: 32s; animation-delay: -12s; }
+        @keyframes drift {
+            0%   { transform: translate(0,0) scale(1); }
+            50%  { transform: translate(40px,60px) scale(1.15); }
+            100% { transform: translate(-30px,20px) scale(.95); }
+        }
+        .grain {
+            position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .06; mix-blend-mode: overlay;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+        }
+
+        /* ---------- Glass ---------- */
         .glass-luxury {
-            background: linear-gradient(135deg, rgba(18, 24, 38, 0.75) 0%, rgba(10, 14, 23, 0.85) 100%);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.07);
+            background: linear-gradient(145deg, rgba(24,30,46,.72) 0%, rgba(10,14,24,.82) 100%);
+            backdrop-filter: blur(20px) saturate(140%);
+            -webkit-backdrop-filter: blur(20px) saturate(140%);
+            border: 1px solid rgba(255,255,255,.07);
+            box-shadow: 0 20px 50px -20px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.06);
         }
-        .gold-glow {
-            text-shadow: 0 0 20px rgba(212, 175, 55, 0.2);
+        .gold-text {
+            background: linear-gradient(100deg, #fff1c1 0%, #f5c451 40%, #d4a017 70%, #fff1c1 100%);
+            background-size: 200% auto;
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+            animation: shine 6s linear infinite;
         }
-        #toast {
-            transition: opacity 0.3s ease, transform 0.3s ease;
+        @keyframes shine { to { background-position: 200% center; } }
+
+        /* ---------- Hero with rotating gold border ---------- */
+        @property --ang { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+        .hero {
+            position: relative; border-radius: 28px; padding: 1px;
+            background: conic-gradient(from var(--ang), rgba(245,196,81,.0), rgba(245,196,81,.9), rgba(52,211,153,.7), rgba(245,196,81,.0) 60%);
+            animation: spin 7s linear infinite;
+            transform-style: preserve-3d; transition: transform .2s ease-out;
         }
+        @keyframes spin { to { --ang: 360deg; } }
+        .hero-inner {
+            border-radius: 27px; position: relative; overflow: hidden;
+            background: linear-gradient(160deg, #111827 0%, #070a12 100%);
+        }
+        .hero-inner::after { /* light sweep */
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%);
+            transform: translateX(-100%); animation: sweep 5s ease-in-out infinite;
+        }
+        @keyframes sweep { 60%,100% { transform: translateX(100%); } }
+        .ring-bg { stroke: rgba(255,255,255,.08); }
+        .ring-fg { transition: stroke-dashoffset 1.4s cubic-bezier(.22,1,.36,1); filter: drop-shadow(0 0 6px rgba(245,196,81,.55)); }
+
+        /* ---------- Cards ---------- */
+        .c-card { position: relative; transition: transform .25s ease, box-shadow .25s ease, border-color .25s; }
+        .c-card:hover { transform: translateY(-3px); border-color: rgba(245,196,81,.25); }
+        .c-card::before { /* left accent */
+            content: ''; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3.5px; border-radius: 3px;
+            background: var(--accent, var(--gold)); box-shadow: 0 0 14px var(--accent, var(--gold));
+        }
+        .enter { opacity: 0; transform: translateY(18px) scale(.98); animation: enter .6s cubic-bezier(.22,1,.36,1) forwards; }
+        @keyframes enter { to { opacity: 1; transform: none; } }
+
+        .bar-track { background: rgba(255,255,255,.06); }
+        .bar-fill { position: relative; background: linear-gradient(90deg, #f5c451, #34d399); transition: width 1.2s cubic-bezier(.22,1,.36,1); }
+        .bar-fill::after {
+            content: ''; position: absolute; inset: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,.55), transparent);
+            transform: translateX(-100%); animation: barshine 2.8s ease-in-out infinite;
+        }
+        @keyframes barshine { 60%,100% { transform: translateX(100%); } }
+
+        /* ---------- Buttons ---------- */
+        .btn-gold {
+            background: linear-gradient(135deg, #f8d374 0%, #f5c451 35%, #d4a017 100%);
+            color: #1a1203; font-weight: 800;
+            box-shadow: 0 8px 24px -8px rgba(245,196,81,.6), inset 0 1px 0 rgba(255,255,255,.5);
+            transition: transform .15s ease, box-shadow .2s ease, filter .2s;
+        }
+        .btn-gold:hover { filter: brightness(1.08); box-shadow: 0 12px 30px -8px rgba(245,196,81,.8), inset 0 1px 0 rgba(255,255,255,.5); }
+        .btn-gold:active { transform: scale(.96); }
+        .btn-ghost { background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.09); transition: all .2s; }
+        .btn-ghost:hover { background: rgba(255,255,255,.1); }
+        .btn-ghost:active { transform: scale(.95); }
+        .ripple-host { position: relative; overflow: hidden; }
+        .ripple {
+            position: absolute; border-radius: 9999px; background: rgba(255,255,255,.45);
+            transform: scale(0); animation: ripple .6s ease-out forwards; pointer-events: none;
+        }
+        @keyframes ripple { to { transform: scale(4); opacity: 0; } }
+
+        /* ---------- Action Button Group Pill ---------- */
+        .action-pill {
+            background: rgba(13, 17, 28, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 9999px;
+            padding: 3px 4px;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+        .action-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            background: rgba(255, 255, 255, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            color: #e2e8f0;
+            transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+        .action-btn:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.18);
+            transform: translateY(-1px);
+        }
+        .action-btn:active {
+            transform: scale(0.92);
+        }
+        .action-btn-history:hover { background: rgba(245, 196, 81, 0.15); border-color: rgba(245, 196, 81, 0.35); }
+        .action-btn-edit:hover { background: rgba(99, 102, 241, 0.18); border-color: rgba(99, 102, 241, 0.35); }
+        .action-btn-delete:hover { background: rgba(244, 63, 94, 0.18); border-color: rgba(244, 63, 94, 0.35); color: #f43f5e; }
+
+        /* ---------- Inputs ---------- */
+        .field {
+            width: 100%; background: rgba(3,7,18,.7); border: 1px solid rgba(255,255,255,.08);
+            border-radius: 14px; padding: 12px 14px; font-size: 13px; color: #f1f5f9; outline: none;
+            transition: border-color .2s, box-shadow .2s;
+        }
+        .field:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(245,196,81,.12); }
+        .field::placeholder { color: #64748b; }
+        .lbl { font-size: 10px; color: #94a3b8; text-transform: uppercase; font-weight: 700; letter-spacing: .08em; display: block; margin-bottom: 6px; }
+
+        /* ---------- Modals ---------- */
+        .modal { position: fixed; inset: 0; z-index: 60; display: none; align-items: center; justify-content: center; padding: 16px;
+            background: rgba(2,4,10,.75); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+        .modal.open { display: flex; animation: fade .25s ease; }
+        .modal.sheet.open { align-items: flex-end; }
+        .modal-card { animation: pop .4s cubic-bezier(.22,1,.36,1); }
+        .sheet .modal-card { animation: slideup .45s cubic-bezier(.22,1,.36,1); }
+        @keyframes fade { from { opacity: 0; } }
+        @keyframes pop { from { opacity: 0; transform: scale(.9) translateY(10px); } }
+        @keyframes slideup { from { transform: translateY(100%); } }
+
+        /* ---------- Toast ---------- */
+        #toast { transition: opacity .35s ease, transform .45s cubic-bezier(.22,1,.36,1); }
+
+        /* ---------- FAB ---------- */
+        .fab {
+            position: fixed; right: 20px; bottom: calc(22px + env(safe-area-inset-bottom)); z-index: 40;
+            width: 60px; height: 60px; border-radius: 22px; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; line-height: 1;
+        }
+        .fab::before { content: ''; position: absolute; inset: -6px; border-radius: 26px; border: 1px solid rgba(245,196,81,.5); animation: pulse 2.4s ease-out infinite; }
+        @keyframes pulse { from { transform: scale(.9); opacity: .9; } to { transform: scale(1.25); opacity: 0; } }
+
+        #confetti { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
+        .chip { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; letter-spacing: .02em; }
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
+        @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
     </style>
 </head>
-<body class="luxury-bg text-slate-100 min-h-screen p-4 pb-28 selection:bg-amber-400 selection:text-slate-950">
-    
-    <!-- Toast Notification -->
-    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-50 opacity-0 pointer-events-none transform -translate-y-4 transition-all duration-300 w-11/12 max-w-sm">
-        <div id="toast-content" class="glass-luxury border border-amber-500/40 p-4 rounded-2xl shadow-2xl flex items-center space-x-3 text-xs text-slate-200">
-            <span id="toast-icon" class="text-amber-400 text-base font-bold">✨</span>
-            <span id="toast-message" class="flex-1 font-medium">Notification message here</span>
+<body class="text-slate-100 min-h-screen p-4 pb-32 selection:bg-amber-400 selection:text-slate-950">
+
+    <div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
+    <div class="grain"></div>
+    <canvas id="confetti"></canvas>
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-5 left-1/2 -translate-x-1/2 z-[90] opacity-0 pointer-events-none -translate-y-6 w-11/12 max-w-sm">
+        <div class="glass-luxury border border-amber-500/40 p-4 rounded-2xl flex items-center space-x-3 text-xs text-slate-200">
+            <span id="toast-icon" class="text-base">✨</span>
+            <span id="toast-message" class="flex-1 font-semibold">Notification</span>
         </div>
     </div>
 
     <div class="max-w-md mx-auto space-y-5">
-        
+
         <!-- Header -->
         <header class="flex justify-between items-center py-3">
             <div>
-                <p class="text-[10px] uppercase tracking-widest text-amber-400/80 font-bold">My Portfolio</p>
-                <h1 class="text-xl font-extrabold tracking-tight text-slate-100">DEBT <span class="text-amber-400">TRACKER</span></h1>
+                <p class="text-[10px] uppercase tracking-[.3em] text-amber-400/80 font-bold" id="greeting">My Portfolio</p>
+                <h1 class="num text-2xl font-extrabold tracking-tight">DEBT <span class="gold-text">TRACKER</span></h1>
             </div>
             <div class="flex items-center space-x-2">
-                <!-- Smart Reset Button -->
-                <button onclick="resetPaidItemsOnly()" title="Reset paid status for new month" class="px-3 py-1.5 rounded-xl text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/30 font-bold hover:bg-amber-500/20 transition flex items-center space-x-1.5 shadow-md">
+                <button onclick="resetPaidItemsOnly()" title="Reset paid status for new month" class="btn-ghost ripple-host px-3 py-2 rounded-xl text-[10px] text-amber-400 font-bold flex items-center space-x-1.5">
                     <span>Monthly Reset</span>
                 </button>
-                <!-- Profile Avatar Button -->
-                <button onclick="openProfileModal()" id="user-avatar-btn" title="Click to change profile & settings" class="w-9 h-9 rounded-2xl glass-luxury border border-amber-500/30 flex items-center justify-center text-amber-400 font-bold text-xs shadow-lg hover:bg-amber-500/10 transition">
-                    MS
-                </button>
+                <button onclick="openProfileModal()" id="user-avatar-btn" title="Profile & settings" class="w-10 h-10 rounded-2xl btn-gold flex items-center justify-center text-xs">MS</button>
             </div>
         </header>
 
-        <!-- Summary Hero Card -->
-        <div class="glass-luxury p-6 rounded-3xl shadow-2xl relative overflow-hidden space-y-4 border border-slate-700/40">
-            <div class="absolute -right-12 -top-12 w-36 h-36 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            <div class="absolute -left-12 -bottom-12 w-36 h-36 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
-            
-            <div class="flex justify-between items-center relative z-10">
-                <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Total Remaining Balance</span>
-                <!-- Privacy / Stealth Toggle Button (Gaya MAE/Maybank) -->
-                <button onclick="toggleStealthMode()" id="stealth-badge" title="Toggle Balance Visibility" class="text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full font-bold transition hover:bg-slate-800 active:scale-95 shadow flex items-center space-x-1.5">
-                    <svg id="eye-icon-open" class="w-3.5 h-3.5 fill-current text-slate-400" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
-                    <svg id="eye-icon-closed" class="w-3.5 h-3.5 fill-current text-amber-400 hidden" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.17c0-1.66-1.34-3-3-3l-.17.02z"/></svg>
-                    <span id="stealth-badge-text">Hide balance</span>
-                </button>
-            </div>
-            
-            <h2 id="total-remaining" class="text-3xl font-black tracking-tight text-slate-50 relative z-10">RM 0.00</h2>
-            
-            <div class="grid grid-cols-2 gap-3 pt-4 border-t border-slate-800/80 text-xs relative z-10">
-                <div>
-                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Total Original Amount</span>
-                    <span id="total-initial" class="font-bold text-slate-200 text-sm">RM 0.00</span>
+        <!-- Hero -->
+        <div class="hero" id="hero">
+            <div class="hero-inner p-6 space-y-5">
+                <div class="absolute -right-14 -top-14 w-44 h-44 bg-amber-500/15 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -left-14 -bottom-14 w-44 h-44 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="flex justify-between items-center relative z-10">
+                    <span class="text-[11px] font-bold uppercase tracking-[.18em] text-slate-400">Total Remaining</span>
+                    <button onclick="toggleStealthMode()" id="stealth-badge" class="text-[10px] bg-slate-800/80 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full font-bold transition active:scale-95 flex items-center space-x-1.5">
+                        <svg id="eye-icon-open" class="w-3.5 h-3.5 fill-current text-slate-400" viewBox="0 0 24 24"><path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/></svg>
+                        <svg id="eye-icon-closed" class="w-3.5 h-3.5 fill-current text-amber-400 hidden" viewBox="0 0 24 24"><path d="M12 7c2.76 0 5 2.24 5 5 0 .65-.13 1.26-.36 1.83l2.92 2.92c1.51-1.26 2.7-2.89 3.44-4.75-1.73-4.39-6-7.5-11-7.5-1.4 0-2.74.25-3.98.7l2.16 2.16C10.74 7.13 11.35 7 12 7zM2 4.27l2.28 2.28.46.46C3.08 8.3 1.78 10.02 1 12c1.73 4.39 6 7.5 11 7.5 1.55 0 3.03-.3 4.38-.84l.42.42L19.73 22 21 20.73 3.27 3 2 4.27zM7.53 9.8l1.55 1.55c-.05.21-.08.43-.08.65 0 1.66 1.34 3 3 3 .22 0 .44-.03.65-.08l1.55 1.55c-.67.33-1.41.53-2.2.53-2.76 0-5-2.24-5-5 0-.79.2-1.53.53-2.2zm4.31-.78l3.15 3.15.02-.17c0-1.66-1.34-3-3-3l-.17.02z"/></svg>
+                        <span id="stealth-badge-text">Hide balance</span>
+                    </button>
                 </div>
-                <div class="text-right">
-                    <span class="text-slate-400 block text-[10px] uppercase font-semibold">Monthly Commitment</span>
-                    <span id="total-monthly" class="font-bold text-amber-400 text-sm gold-glow">RM 0.00</span>
+
+                <div class="flex items-center justify-between relative z-10">
+                    <div class="min-w-0">
+                        <h2 id="total-remaining" class="num text-[32px] leading-none font-extrabold tracking-tight gold-text">RM 0.00</h2>
+                        <p class="text-[11px] text-slate-400 mt-2 font-medium" id="hero-sub">Calculating…</p>
+                    </div>
+                    <div class="relative w-[92px] h-[92px] shrink-0">
+                        <svg viewBox="0 0 80 80" class="w-full h-full -rotate-90">
+                            <defs>
+                                <linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1">
+                                    <stop offset="0%" stop-color="#f5c451"/><stop offset="100%" stop-color="#34d399"/>
+                                </linearGradient>
+                            </defs>
+                            <circle class="ring-bg" cx="40" cy="40" r="34" fill="none" stroke-width="7"/>
+                            <circle id="ring-fg" class="ring-fg" cx="40" cy="40" r="34" fill="none" stroke="url(#ringGrad)" stroke-width="7" stroke-linecap="round" stroke-dasharray="213.63" stroke-dashoffset="213.63"/>
+                        </svg>
+                        <div class="absolute inset-0 flex flex-col items-center justify-center">
+                            <span id="ring-pct" class="num text-lg font-extrabold text-slate-50">0%</span>
+                            <span class="text-[8px] uppercase tracking-widest text-slate-400 font-bold">cleared</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-3 pt-4 border-t border-white/5 relative z-10">
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Original Amount</span>
+                        <span id="total-initial" class="num font-bold text-slate-200 text-sm">RM 0.00</span>
+                    </div>
+                    <div class="text-right">
+                        <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Monthly Commitment</span>
+                        <span id="total-monthly" class="num font-bold text-amber-400 text-sm">RM 0.00</span>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Backup & Restore Toolbar -->
-        <div class="glass-luxury p-3.5 rounded-2xl flex justify-between items-center shadow-lg">
-            <span class="text-xs text-slate-300 font-semibold px-1">Data Backup</span>
+        <!-- Backup -->
+        <div class="glass-luxury p-3.5 rounded-2xl flex justify-between items-center">
+            <div class="flex items-center space-x-2 px-1">
+                <span class="text-base">🛡️</span>
+                <span class="text-xs text-slate-300 font-semibold">Data Backup</span>
+            </div>
             <div class="space-x-1.5">
-                <button onclick="exportData()" class="px-3 py-1.5 rounded-xl text-xs bg-slate-800/80 text-emerald-400 hover:bg-slate-700 transition border border-slate-700/60 font-semibold shadow">Export</button>
-                <label class="px-3 py-1.5 rounded-xl text-xs bg-slate-800/80 text-amber-400 hover:bg-slate-700 transition border border-slate-700/60 font-semibold cursor-pointer inline-block shadow">
+                <button onclick="exportData()" class="btn-ghost px-3.5 py-1.5 rounded-xl text-xs text-emerald-400 font-bold">Export</button>
+                <label class="btn-ghost px-3.5 py-1.5 rounded-xl text-xs text-amber-400 font-bold cursor-pointer inline-block">
                     Import<input type="file" id="import-file" accept=".json,application/json,text/plain,*/*" onchange="importData(event)" class="hidden">
                 </label>
             </div>
         </div>
 
-        <!-- Add New Commitment Form -->
-        <div class="glass-luxury p-4.5 rounded-3xl space-y-3 shadow-xl">
-            <h3 class="text-xs font-bold text-amber-400 uppercase tracking-widest">➕ Add New Commitment</h3>
-            <input type="text" id="new-name" placeholder="Commitment Name" class="w-full bg-[#030712]/90 border border-slate-800 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
-            <div class="grid grid-cols-3 gap-2">
-                <input type="number" id="new-due" placeholder="Due (e.g. 5)" min="1" max="31" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
-                <input type="number" id="new-initial" placeholder="Original (RM)" step="0.01" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
-                <input type="number" id="new-monthly" placeholder="Monthly (RM)" step="0.01" class="bg-[#030712]/90 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-100 focus:outline-none focus:border-amber-400 transition">
-            </div>
-            <button onclick="addNewCommitment()" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-extrabold py-3 rounded-xl text-xs transition shadow-lg shadow-amber-500/20">Save to Portfolio</button>
-        </div>
-
-        <!-- List Controls & Sorting Bar -->
-        <div class="space-y-2.5 pt-2">
+        <!-- List controls -->
+        <div class="space-y-3 pt-1">
             <div class="flex justify-between items-center px-1">
-                <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">Active Commitments</h3>
-                <button onclick="toggleShowCompleted()" id="toggle-completed-btn" class="text-[11px] text-amber-400 hover:underline font-semibold">Show completed</button>
+                <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-[.2em]">Active Commitments</h3>
+                <button onclick="toggleShowCompleted()" id="toggle-completed-btn" class="text-[11px] text-amber-400 hover:underline font-bold">Show completed</button>
             </div>
-            <!-- Sorting Buttons Bar -->
-            <div class="grid grid-cols-3 gap-2 text-xs">
-                <button onclick="setSortMode('due')" id="sort-btn-due" class="py-2 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 text-center shadow">📅 Due Date</button>
-                <button onclick="setSortMode('highest-balance')" id="sort-btn-highest-balance" class="py-2 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 text-center shadow">💰 Highest Bal</button>
-                <button onclick="setSortMode('lowest-balance')" id="sort-btn-lowest-balance" class="py-2 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 text-center shadow">⚡ Lowest Bal</button>
+            <div class="glass-luxury p-1 rounded-2xl grid grid-cols-3 gap-1 text-[11px]">
+                <button onclick="setSortMode('due')" id="sort-btn-due" class="py-2 rounded-xl font-semibold transition">📅 Due Date</button>
+                <button onclick="setSortMode('highest-balance')" id="sort-btn-highest-balance" class="py-2 rounded-xl font-semibold transition">💰 Highest</button>
+                <button onclick="setSortMode('lowest-balance')" id="sort-btn-lowest-balance" class="py-2 rounded-xl font-semibold transition">⚡ Lowest</button>
             </div>
         </div>
 
-        <!-- Commitment List Container -->
-        <div class="space-y-3.5" id="commitment-list">
-            <!-- Dynamic data -->
+        <!-- List -->
+        <div class="space-y-4" id="commitment-list"></div>
+    </div>
+
+    <!-- FAB -->
+    <button onclick="openAddModal()" class="fab btn-gold" title="Add new commitment">+</button>
+
+    <!-- Add Modal -->
+    <div id="add-modal" class="modal sheet">
+        <div class="modal-card glass-luxury p-6 rounded-t-[32px] rounded-b-3xl w-full max-w-md space-y-4 border border-amber-500/30 max-h-[92vh] overflow-y-auto">
+            <div class="w-10 h-1 rounded-full bg-white/15 mx-auto -mt-2 mb-1"></div>
+            <h3 class="text-sm font-extrabold uppercase tracking-widest gold-text">➕ Add New Commitment</h3>
+
+            <div>
+                <label class="lbl">Type</label>
+                <div class="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-black/30 border border-white/5">
+                    <button type="button" id="new-type-debt" onclick="setFormType('new','debt')" class="py-2 rounded-xl text-xs transition">💳 Debt</button>
+                    <button type="button" id="new-type-utility" onclick="setFormType('new','utility')" class="py-2 rounded-xl text-xs transition">💡 Utilities</button>
+                </div>
+                <input type="hidden" id="new-type" value="debt">
+                <p id="new-type-hint" class="text-[10px] text-slate-500 mt-1.5 leading-relaxed"></p>
+            </div>
+
+            <div>
+                <label class="lbl">Commitment Name</label>
+                <input type="text" id="new-name" placeholder="e.g. Car Loan" class="field">
+            </div>
+            <div class="grid grid-cols-3 gap-2" id="new-grid">
+                <div><label class="lbl">Due Day</label><input type="number" id="new-due" placeholder="5" min="1" max="31" class="field"></div>
+                <div id="new-initial-wrap"><label class="lbl">Original</label><input type="number" id="new-initial" placeholder="RM" step="0.01" class="field"></div>
+                <div><label class="lbl">Monthly</label><input type="number" id="new-monthly" placeholder="RM" step="0.01" class="field"></div>
+            </div>
+            <div class="flex space-x-2 pt-1">
+                <button onclick="closeAddModal()" class="btn-ghost w-1/3 py-3 rounded-xl text-xs text-slate-300 font-semibold">Cancel</button>
+                <button onclick="addNewCommitment()" class="btn-gold ripple-host w-2/3 py-3 rounded-xl text-xs">Save to Portfolio</button>
+            </div>
         </div>
     </div>
 
-    <!-- Custom Confirmation Modal -->
-    <div id="confirm-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30 shadow-2xl">
+    <!-- Confirm Modal -->
+    <div id="confirm-modal" class="modal" style="z-index:70">
+        <div class="modal-card glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30">
             <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-400 text-lg">⚠️</div>
-                <h3 class="text-sm font-bold text-slate-100 uppercase tracking-wider">Confirmation</h3>
+                <div class="w-10 h-10 rounded-2xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-lg">⚠️</div>
+                <h3 class="text-sm font-extrabold text-slate-100 uppercase tracking-wider">Confirmation</h3>
             </div>
             <p id="confirm-text" class="text-xs text-slate-300 font-medium leading-relaxed"></p>
             <div class="flex space-x-2 pt-2">
-                <button id="confirm-cancel-btn" class="w-1/2 py-2.5 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Cancel</button>
-                <button id="confirm-ok-btn" class="w-1/2 py-2.5 rounded-xl text-xs bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 transition shadow-lg shadow-amber-500/25">Confirm</button>
+                <button id="confirm-cancel-btn" class="btn-ghost w-1/2 py-3 rounded-xl text-xs text-slate-300 font-semibold">Cancel</button>
+                <button id="confirm-ok-btn" class="btn-gold w-1/2 py-3 rounded-xl text-xs">Confirm</button>
             </div>
         </div>
     </div>
 
-    <!-- Custom Edit Modal -->
-    <div id="edit-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30 shadow-2xl">
-            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider">Edit Commitment Details</h3>
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-card glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30 max-h-[92vh] overflow-y-auto">
+            <h3 class="text-sm font-extrabold uppercase tracking-widest gold-text">Edit Commitment</h3>
             <input type="hidden" id="edit-id">
             <div class="space-y-3">
                 <div>
-                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Commitment Name</label>
-                    <input type="text" id="edit-name" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
+                    <label class="lbl">Type</label>
+                    <div class="grid grid-cols-2 gap-1 p-1 rounded-2xl bg-black/30 border border-white/5">
+                        <button type="button" id="edit-type-debt" onclick="setFormType('edit','debt')" class="py-2 rounded-xl text-xs transition">💳 Debt</button>
+                        <button type="button" id="edit-type-utility" onclick="setFormType('edit','utility')" class="py-2 rounded-xl text-xs transition">💡 Utilities</button>
+                    </div>
+                    <input type="hidden" id="edit-type" value="debt">
+                    <p id="edit-type-hint" class="text-[10px] text-slate-500 mt-1.5 leading-relaxed"></p>
                 </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Due Date (Day e.g. 5)</label>
-                    <input type="number" id="edit-due" min="1" max="31" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Original Amount (RM)</label>
-                    <input type="number" id="edit-initial" step="0.01" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
-                </div>
-                <div>
-                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Monthly Payment (RM)</label>
-                    <input type="number" id="edit-monthly" step="0.01" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
-                </div>
+                <div><label class="lbl">Commitment Name</label><input type="text" id="edit-name" class="field"></div>
+                <div><label class="lbl">Due Date (Day e.g. 5)</label><input type="number" id="edit-due" min="1" max="31" class="field"></div>
+                <div id="edit-initial-wrap"><label class="lbl">Original Amount (RM)</label><input type="number" id="edit-initial" step="0.01" class="field"></div>
+                <div><label class="lbl">Monthly Payment (RM)</label><input type="number" id="edit-monthly" step="0.01" class="field"></div>
             </div>
             <div class="flex space-x-2 pt-2">
-                <button onclick="closeEditModal()" class="w-1/2 py-2.5 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Cancel</button>
-                <button onclick="saveEditCommitment()" class="w-1/2 py-2.5 rounded-xl text-xs bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 transition shadow-lg shadow-amber-500/25">Save</button>
+                <button onclick="closeEditModal()" class="btn-ghost w-1/2 py-3 rounded-xl text-xs text-slate-300 font-semibold">Cancel</button>
+                <button onclick="saveEditCommitment()" class="btn-gold w-1/2 py-3 rounded-xl text-xs">Save</button>
             </div>
         </div>
     </div>
 
-    <!-- Custom Payment Modal -->
-    <div id="pay-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-emerald-500/30 shadow-2xl">
-            <h3 class="text-sm font-bold text-emerald-400 uppercase tracking-wider" id="pay-modal-title">Make Payment</h3>
+    <!-- Pay Modal -->
+    <div id="pay-modal" class="modal">
+        <div class="modal-card glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-emerald-500/30">
+            <h3 class="text-sm font-extrabold text-emerald-400 uppercase tracking-wider" id="pay-modal-title">Make Payment</h3>
             <input type="hidden" id="pay-id">
             <div>
-                <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Payment Amount (RM)</label>
-                <input type="number" id="pay-amount-input" step="0.01" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-sm text-slate-100 font-bold focus:outline-none focus:border-emerald-400">
+                <label class="lbl">Payment Amount (RM)</label>
+                <input type="number" id="pay-amount-input" step="0.01" class="field num text-lg font-bold" style="font-size:20px">
+                <p id="pay-hint" class="text-[10px] text-slate-500 mt-1.5 hidden">Utilities are marked as settled once paid.</p>
             </div>
             <div class="flex space-x-2 pt-2">
-                <button onclick="closePayModal()" class="w-1/2 py-2.5 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Cancel</button>
-                <button onclick="confirmPayment()" class="w-1/2 py-2.5 rounded-xl text-xs bg-emerald-500 text-slate-950 font-extrabold hover:bg-emerald-400 transition shadow-lg shadow-emerald-500/25">Confirm Pay</button>
+                <button onclick="closePayModal()" class="btn-ghost w-1/2 py-3 rounded-xl text-xs text-slate-300 font-semibold">Cancel</button>
+                <button onclick="confirmPayment()" class="w-1/2 py-3 rounded-xl text-xs font-extrabold text-slate-950 transition active:scale-95" style="background:linear-gradient(135deg,#6ee7b7,#10b981);box-shadow:0 8px 24px -8px rgba(16,185,129,.7)">Confirm Pay</button>
             </div>
         </div>
     </div>
 
-    <!-- User Profile & Settings Modal -->
-    <div id="profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30 shadow-2xl">
-            <h3 class="text-sm font-bold text-amber-400 uppercase tracking-wider">User Profile & Settings</h3>
-            
+    <!-- Profile Modal -->
+    <div id="profile-modal" class="modal">
+        <div class="modal-card glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30">
+            <h3 class="text-sm font-extrabold uppercase tracking-widest gold-text">User Profile & Settings</h3>
             <div class="space-y-3">
-                <div>
-                    <label class="text-[10px] text-slate-400 uppercase font-semibold block mb-1">Your Name / Initials</label>
-                    <input type="text" id="profile-name-input" placeholder="e.g. Mohd Saifullah (MS)" class="w-full bg-[#030712] border border-slate-700 rounded-xl p-3 text-xs text-slate-100 focus:outline-none focus:border-amber-400">
-                </div>
-
-                <!-- Automatic Monthly Reset Setting -->
-                <div class="pt-2 border-t border-slate-800 flex items-center justify-between">
+                <div><label class="lbl">Your Name / Initials</label><input type="text" id="profile-name-input" placeholder="e.g. Mohd Saifullah" class="field"></div>
+                <div class="pt-3 border-t border-white/5 flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-200">Automatic Monthly Reset</span>
-                    <button onclick="toggleAutoResetSetting()" id="auto-reset-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition shadow">
-                        ON
-                    </button>
+                    <button onclick="toggleAutoResetSetting()" id="auto-reset-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition">ON</button>
                 </div>
             </div>
-
             <div class="flex space-x-2 pt-3">
-                <button onclick="closeProfileModal()" class="w-1/2 py-2.5 rounded-xl text-xs bg-slate-800 text-slate-300 font-semibold hover:bg-slate-700 transition">Cancel</button>
-                <button onclick="saveProfileName()" class="w-1/2 py-2.5 rounded-xl text-xs bg-amber-500 text-slate-950 font-extrabold hover:bg-amber-400 transition shadow-lg shadow-amber-500/25">Save</button>
+                <button onclick="closeProfileModal()" class="btn-ghost w-1/2 py-3 rounded-xl text-xs text-slate-300 font-semibold">Cancel</button>
+                <button onclick="saveProfileName()" class="btn-gold w-1/2 py-3 rounded-xl text-xs">Save</button>
             </div>
+        </div>
+    </div>
+
+    <!-- History Modal -->
+    <div id="history-modal" class="modal sheet">
+        <div class="modal-card glass-luxury p-6 rounded-t-[32px] rounded-b-3xl w-full max-w-md space-y-4 border border-amber-500/30">
+            <div class="w-10 h-1 rounded-full bg-white/15 mx-auto -mt-2 mb-1"></div>
+            <h3 id="history-title" class="text-sm font-extrabold uppercase tracking-widest gold-text truncate">Payment History</h3>
+            <div id="history-list" class="space-y-1.5 max-h-72 overflow-y-auto"></div>
+            <button onclick="closeHistoryModal()" class="btn-ghost w-full py-3 rounded-2xl text-xs text-slate-300 font-semibold">Close</button>
         </div>
     </div>
 
     <script>
         const initialCommitments = [
-            { id: 1, name: "AKPK", due: "5th", initial: 40945.76, remaining: 40945.76, monthly: 700.00, history: [] },
+            { id: 1, name: "Spay Later", type: "debt", due: "10th", initial: 10000.00, remaining: 10000.00, monthly: 2100.00, history: [] },
+            { id: 2, name: "AKPK", type: "debt", due: "5th", initial: 40945.76, remaining: 40945.76, monthly: 700.00, history: [] }
         ];
 
         let commitments = JSON.parse(localStorage.getItem('my_commitments_v26')) || initialCommitments;
         let showCompleted = false;
         let currentSortMode = localStorage.getItem('debt_tracker_sort') || 'due';
         let stealthMode = false;
-
-        // User Profile & Settings Management
+        let animateCards = true;
+        let historyId = null;
         let userProfile = JSON.parse(localStorage.getItem('debt_tracker_user')) || { name: "Mohd Saifullah", initials: "MS", autoReset: true };
 
-        // Haptic & Audio Feedback System
-        function triggerHaptic(type = 'light') {
-            if (navigator.vibrate) {
-                if (type === 'light') navigator.vibrate(15);
-                if (type === 'success') navigator.vibrate([30, 50, 30]);
-                if (type === 'heavy') navigator.vibrate(50);
-            }
-        }
+        const CIRC = 213.63;
+        const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+        const rm = n => 'RM ' + Number(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const curMonthKey = () => new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+        const isUtility = c => c.type === 'utility';
 
+        /* ---------- Haptic & sound ---------- */
+        function triggerHaptic(type = 'light') {
+            if (!navigator.vibrate) return;
+            if (type === 'light') navigator.vibrate(15);
+            else if (type === 'success') navigator.vibrate([30, 50, 30]);
+            else navigator.vibrate(50);
+        }
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         function playSound(tone = 'click') {
             try {
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-
+                if (audioCtx.state === 'suspended') audioCtx.resume();
+                const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
+                osc.connect(gain); gain.connect(audioCtx.destination);
                 const now = audioCtx.currentTime;
                 if (tone === 'click') {
                     osc.frequency.setValueAtTime(400, now);
                     gain.gain.setValueAtTime(0.03, now);
                     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05);
-                    osc.start(now);
-                    osc.stop(now + 0.05);
-                } else if (tone === 'success') {
-                    osc.frequency.setValueAtTime(523.25, now); // C5
-                    osc.frequency.setValueAtTime(659.25, now + 0.08); // E5
-                    osc.frequency.setValueAtTime(783.99, now + 0.16); // G5
+                    osc.start(now); osc.stop(now + 0.05);
+                } else {
+                    osc.frequency.setValueAtTime(523.25, now);
+                    osc.frequency.setValueAtTime(659.25, now + 0.08);
+                    osc.frequency.setValueAtTime(783.99, now + 0.16);
                     gain.gain.setValueAtTime(0.05, now);
                     gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
+                    osc.start(now); osc.stop(now + 0.3);
                 }
-            } catch (e) {
-                // Ignore if audio context restricted by browser policy before first interaction
+            } catch (e) {}
+        }
+        const tap = () => { triggerHaptic('light'); playSound('click'); };
+        const win = () => { triggerHaptic('success'); playSound('success'); };
+
+        /* ---------- Ripple on gold buttons ---------- */
+        document.addEventListener('pointerdown', e => {
+            const b = e.target.closest('.btn-gold, .ripple-host');
+            if (!b) return;
+            const r = b.getBoundingClientRect(), size = Math.max(r.width, r.height);
+            const s = document.createElement('span');
+            s.className = 'ripple';
+            s.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX - r.left - size/2}px;top:${e.clientY - r.top - size/2}px`;
+            if (getComputedStyle(b).position === 'static') b.style.position = 'relative';
+            b.style.overflow = 'hidden';
+            b.appendChild(s);
+            setTimeout(() => s.remove(), 600);
+        });
+
+        /* ---------- Hero 3D tilt ---------- */
+        const hero = document.getElementById('hero');
+        hero.addEventListener('pointermove', e => {
+            if (e.pointerType === 'touch') return;
+            const r = hero.getBoundingClientRect();
+            const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
+            hero.style.transform = `perspective(900px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
+        });
+        hero.addEventListener('pointerleave', () => hero.style.transform = '');
+
+        /* ---------- Count-up numbers ---------- */
+        function countTo(el, to, format) {
+            const from = parseFloat(el.dataset.v || 0);
+            el.dataset.v = to;
+            if (from === to) { el.innerText = format(to); return; }
+            const start = performance.now(), dur = 1100;
+            const ease = t => 1 - Math.pow(1 - t, 4);
+            (function step(now) {
+                const t = Math.min(1, (now - start) / dur);
+                el.innerText = format(from + (to - from) * ease(t));
+                if (t < 1) requestAnimationFrame(step);
+            })(start);
+        }
+        function setMoney(id, val) {
+            const el = document.getElementById(id);
+            if (stealthMode) { el.innerText = 'RM ••••••'; el.dataset.v = val; return; }
+            countTo(el, val, rm);
+        }
+
+        /* ---------- Confetti ---------- */
+        const cv = document.getElementById('confetti'), cx = cv.getContext('2d');
+        let parts = [], confettiOn = false;
+        function sizeCv() { cv.width = innerWidth; cv.height = innerHeight; }
+        addEventListener('resize', sizeCv); sizeCv();
+        function confetti(big = false) {
+            const n = big ? 160 : 70, colors = ['#f5c451', '#fff1c1', '#34d399', '#6ee7b7', '#d4a017', '#fff'];
+            for (let i = 0; i < n; i++) parts.push({
+                x: innerWidth / 2, y: innerHeight * .55,
+                vx: (Math.random() - .5) * 15, vy: -Math.random() * 15 - 4,
+                s: Math.random() * 7 + 4, c: colors[(Math.random() * colors.length) | 0],
+                r: Math.random() * 6, vr: (Math.random() - .5) * .4, life: 1
+            });
+            if (!confettiOn) { confettiOn = true; requestAnimationFrame(tick); }
+        }
+        function tick() {
+            cx.clearRect(0, 0, cv.width, cv.height);
+            parts.forEach(p => {
+                p.vy += .38; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.r += p.vr; p.life -= .011;
+                cx.save(); cx.globalAlpha = Math.max(0, p.life); cx.translate(p.x, p.y); cx.rotate(p.r);
+                cx.fillStyle = p.c; cx.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .6); cx.restore();
+            });
+            parts = parts.filter(p => p.life > 0 && p.y < cv.height + 40);
+            if (parts.length) requestAnimationFrame(tick); else { confettiOn = false; cx.clearRect(0, 0, cv.width, cv.height); }
+        }
+
+        /* ---------- Modal helpers ---------- */
+        const openM = id => document.getElementById(id).classList.add('open');
+        const closeM = id => document.getElementById(id).classList.remove('open');
+        document.querySelectorAll('.modal').forEach(m => m.addEventListener('pointerdown', e => {
+            if (e.target === m && m.id !== 'confirm-modal') m.classList.remove('open');
+        }));
+
+        function openAddModal() {
+            tap();
+            setFormType('new', 'debt');
+            openM('add-modal');
+            setTimeout(() => document.getElementById('new-name').focus(), 350);
+        }
+        function closeAddModal() { tap(); closeM('add-modal'); }
+
+        /* ---------- Type selector (Debt / Utilities) ---------- */
+        function setFormType(prefix, type) {
+            if (document.getElementById(prefix + '-type').value !== type || true) {
+                document.getElementById(prefix + '-type').value = type;
+            }
+            const on = "py-2 rounded-xl text-xs transition font-extrabold bg-gradient-to-br from-amber-400/25 to-amber-600/15 text-amber-300 border border-amber-500/40";
+            const off = "py-2 rounded-xl text-xs transition font-semibold text-slate-400 border border-transparent";
+            document.getElementById(prefix + '-type-debt').className = type === 'debt' ? on : off;
+            document.getElementById(prefix + '-type-utility').className = type === 'utility' ? on : off;
+            document.getElementById(prefix + '-initial-wrap').classList.toggle('hidden', type === 'utility');
+            document.getElementById(prefix + '-type-hint').innerText = type === 'utility'
+                ? 'Monthly bill (water, electricity, etc). Once paid, it is marked settled until the next monthly reset.'
+                : 'Loan or instalment with a total balance that reduces with each payment.';
+            if (prefix === 'new') {
+                document.getElementById('new-grid').className = type === 'utility' ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-3 gap-2';
             }
         }
 
+        /* ---------- Profile ---------- */
         function updateAvatarUI() {
-            const btn = document.getElementById('user-avatar-btn');
-            if (btn) btn.innerText = userProfile.initials;
+            document.getElementById('user-avatar-btn').innerText = userProfile.initials;
+            const h = new Date().getHours();
+            const g = h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+            document.getElementById('greeting').innerText = `${g}, ${(userProfile.name || '').split(' ')[0]}`;
         }
-
         function updateAutoResetToggleUI() {
             const btn = document.getElementById('auto-reset-toggle-btn');
-            if (!btn) return;
             if (userProfile.autoReset) {
-                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 shadow";
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
                 btn.innerText = "ON";
             } else {
-                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-slate-800 text-slate-500 border border-slate-700 shadow";
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-slate-800 text-slate-500 border border-slate-700";
                 btn.innerText = "OFF";
             }
         }
-
-        function toggleAutoResetSetting() {
-            triggerHaptic('light');
-            playSound('click');
-            userProfile.autoReset = !userProfile.autoReset;
-            updateAutoResetToggleUI();
-        }
-
-        function toggleStealthMode() {
-            triggerHaptic('light');
-            playSound('click');
-            stealthMode = !stealthMode;
-            
-            const badge = document.getElementById('stealth-badge');
-            const badgeText = document.getElementById('stealth-badge-text');
-            const eyeOpen = document.getElementById('eye-icon-open');
-            const eyeClosed = document.getElementById('eye-icon-closed');
-
-            if (stealthMode) {
-                badge.className = "text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/40 px-2.5 py-1 rounded-full font-bold transition hover:scale-105 active:scale-95 shadow flex items-center space-x-1.5";
-                badgeText.innerText = "Show balance";
-                eyeOpen.classList.add('hidden');
-                eyeClosed.classList.remove('hidden');
-                showToast("Balances hidden", "🔒");
-            } else {
-                badge.className = "text-[10px] bg-slate-800/90 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full font-bold transition hover:bg-slate-800 active:scale-95 shadow flex items-center space-x-1.5";
-                badgeText.innerText = "Hide balance";
-                eyeClosed.classList.add('hidden');
-                eyeOpen.classList.remove('hidden');
-                showToast("Balances visible", "👁️");
-            }
-            render();
-        }
-
+        function toggleAutoResetSetting() { tap(); userProfile.autoReset = !userProfile.autoReset; updateAutoResetToggleUI(); }
         function openProfileModal() {
-            triggerHaptic('light');
-            playSound('click');
+            tap();
             document.getElementById('profile-name-input').value = userProfile.name;
             updateAutoResetToggleUI();
-            document.getElementById('profile-modal').classList.remove('hidden');
+            openM('profile-modal');
         }
-
-        function closeProfileModal() {
-            triggerHaptic('light');
-            playSound('click');
-            document.getElementById('profile-modal').classList.add('hidden');
-        }
-
+        function closeProfileModal() { tap(); closeM('profile-modal'); }
         function saveProfileName() {
-            triggerHaptic('success');
-            playSound('success');
+            win();
             const fullName = document.getElementById('profile-name-input').value.trim();
             if (!fullName) return;
-
             const words = fullName.split(' ');
-            let initials = words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : fullName.slice(0, 2).toUpperCase();
-
             userProfile.name = fullName;
-            userProfile.initials = initials;
-
+            userProfile.initials = words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : fullName.slice(0, 2).toUpperCase();
             localStorage.setItem('debt_tracker_user', JSON.stringify(userProfile));
-            
-            updateAvatarUI();
-            closeProfileModal();
-            showToast(`Profile & settings updated successfully`, "👤");
+            updateAvatarUI(); closeM('profile-modal');
+            showToast('Profile & settings updated successfully', '👤');
+        }
+
+        /* ---------- Stealth ---------- */
+        function toggleStealthMode() {
+            tap();
+            stealthMode = !stealthMode;
+            const badge = document.getElementById('stealth-badge');
+            const txt = document.getElementById('stealth-badge-text');
+            document.getElementById('eye-icon-open').classList.toggle('hidden', stealthMode);
+            document.getElementById('eye-icon-closed').classList.toggle('hidden', !stealthMode);
+            badge.className = stealthMode
+                ? "text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/40 px-2.5 py-1 rounded-full font-bold transition active:scale-95 flex items-center space-x-1.5"
+                : "text-[10px] bg-slate-800/80 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full font-bold transition active:scale-95 flex items-center space-x-1.5";
+            txt.innerText = stealthMode ? 'Show balance' : 'Hide balance';
+            showToast(stealthMode ? 'Balances hidden' : 'Balances visible', stealthMode ? '🔒' : '👁️');
+            animateCards = false;
+            render();
+            if (historyId !== null && document.getElementById('history-modal').classList.contains('open')) renderHistoryModal(historyId);
         }
 
         function setSortMode(mode) {
-            triggerHaptic('light');
-            playSound('click');
-            currentSortMode = mode;
+            tap(); currentSortMode = mode;
             localStorage.setItem('debt_tracker_sort', mode);
-            render();
+            animateCards = true; render();
         }
 
         function showToast(message, icon = "✨") {
             const toast = document.getElementById('toast');
             document.getElementById('toast-message').innerText = message;
             document.getElementById('toast-icon').innerText = icon;
-            
-            toast.classList.remove('opacity-0', '-translate-y-4', 'pointer-events-none');
+            toast.classList.remove('opacity-0', '-translate-y-6');
             toast.classList.add('opacity-100', 'translate-y-0');
-
-            setTimeout(() => {
+            clearTimeout(showToast.t);
+            showToast.t = setTimeout(() => {
                 toast.classList.remove('opacity-100', 'translate-y-0');
-                toast.classList.add('opacity-0', '-translate-y-4', 'pointer-events-none');
+                toast.classList.add('opacity-0', '-translate-y-6');
             }, 3000);
         }
 
         function showCustomConfirm(message, onConfirm) {
-            triggerHaptic('light');
-            playSound('click');
-            const modal = document.getElementById('confirm-modal');
-            const textEl = document.getElementById('confirm-text');
+            tap();
             const okBtn = document.getElementById('confirm-ok-btn');
             const cancelBtn = document.getElementById('confirm-cancel-btn');
-
-            textEl.innerText = message;
-            modal.classList.remove('hidden');
-
-            const newOkBtn = okBtn.cloneNode(true);
-            const newCancelBtn = cancelBtn.cloneNode(true);
-            okBtn.parentNode.replaceChild(newOkBtn, okBtn);
-            cancelBtn.parentNode.replaceChild(newCancelBtn, cancelBtn);
-
-            newOkBtn.addEventListener('click', () => {
-                triggerHaptic('medium');
-                playSound('success');
-                modal.classList.add('hidden');
-                onConfirm();
-            });
-
-            newCancelBtn.addEventListener('click', () => {
-                triggerHaptic('light');
-                playSound('click');
-                modal.classList.add('hidden');
-            });
+            document.getElementById('confirm-text').innerText = message;
+            openM('confirm-modal');
+            const newOk = okBtn.cloneNode(true), newCancel = cancelBtn.cloneNode(true);
+            okBtn.replaceWith(newOk); cancelBtn.replaceWith(newCancel);
+            newOk.addEventListener('click', () => { win(); closeM('confirm-modal'); onConfirm(); });
+            newCancel.addEventListener('click', () => { tap(); closeM('confirm-modal'); });
         }
 
-        function saveData() {
-            localStorage.setItem('my_commitments_v26', JSON.stringify(commitments));
-            render();
-        }
+        /* ---------- Data ---------- */
+        function saveData() { localStorage.setItem('my_commitments_v26', JSON.stringify(commitments)); render(); }
 
         function exportData() {
-            triggerHaptic('success');
-            playSound('success');
+            win();
             try {
-                const dataStr = JSON.stringify(commitments, null, 2);
-                const blob = new Blob([dataStr], { type: 'application/json' });
+                const blob = new Blob([JSON.stringify(commitments, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
-                
-                const downloadAnchor = document.createElement('a');
-                downloadAnchor.href = url;
-                downloadAnchor.download = "vault_elite_finance_backup_" + new Date().toISOString().slice(0,10) + ".json";
-                document.body.appendChild(downloadAnchor);
-                downloadAnchor.click();
-                
-                setTimeout(() => {
-                    document.body.removeChild(downloadAnchor);
-                    URL.revokeObjectURL(url);
-                }, 100);
-                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "vault_elite_finance_backup_" + new Date().toISOString().slice(0, 10) + ".json";
+                document.body.appendChild(a); a.click();
+                setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
                 showToast("Backup file downloaded (.json)!", "💾");
-            } catch (err) {
-                showToast("Export failed.", "⚠️");
-            }
+            } catch (err) { showToast("Export failed.", "⚠️"); }
         }
 
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = e => {
                 try {
-                    const content = e.target.result;
-                    const imported = JSON.parse(content);
-                    
+                    const imported = JSON.parse(e.target.result);
                     if (Array.isArray(imported)) {
-                        commitments = imported;
-                        saveData();
-                        triggerHaptic('success');
-                        playSound('success');
+                        commitments = imported; animateCards = true; saveData(); win();
                         showToast("Data successfully restored!", "💾");
-                    } else {
-                        showToast("Invalid data structure in file.", "⚠️");
-                    }
-                } catch (err) {
-                    showToast("Could not parse JSON file.", "⚠️");
-                }
+                    } else showToast("Invalid data structure in file.", "⚠️");
+                } catch (err) { showToast("Could not parse JSON file.", "⚠️"); }
                 event.target.value = '';
             };
-            reader.onerror = function() {
-                showToast("Failed to read file.", "⚠️");
-                event.target.value = '';
-            };
+            reader.onerror = () => { showToast("Failed to read file.", "⚠️"); event.target.value = ''; };
             reader.readAsText(file);
         }
 
         function toggleShowCompleted() {
-            triggerHaptic('light');
-            playSound('click');
-            showCompleted = !showCompleted;
+            tap(); showCompleted = !showCompleted;
             document.getElementById('toggle-completed-btn').innerText = showCompleted ? "Hide completed" : "Show completed";
-            render();
+            animateCards = true; render();
         }
 
-        // Auto-Reset Automatik (Hanya jalan jika user ON-kan tetapan di profile)
+        /* ---------- Resets ---------- */
+        function applyReset(c, onlyMonth) {
+            if (!c.history || c.history.length === 0) return false;
+            c.history.forEach(h => {
+                if (!h.monthKey) return;
+                if (!onlyMonth) h.monthKey = "RESET_BY_AUTO_RESET";
+                else if (h.monthKey === onlyMonth) h.monthKey = "RESET_BY_MONTHLY_RESET";
+            });
+            if (isUtility(c)) { c.initial = c.monthly; c.remaining = c.monthly; }
+            else if (c.initial === c.monthly) c.remaining = c.monthly;
+            return true;
+        }
+
         function checkAutoMonthlyReset() {
             if (!userProfile.autoReset) return;
-
             const now = new Date();
-            const currentMonthKey = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0');
-            const lastResetMonth = localStorage.getItem('last_auto_reset_month');
-
-            if (lastResetMonth !== currentMonthKey) {
-                let resetCount = 0;
-                commitments.forEach(c => {
-                    if (c.history && c.history.length > 0) {
-                        c.history.forEach(h => {
-                            if (h.monthKey) {
-                                h.monthKey = "RESET_BY_AUTO_RESET";
-                            }
-                        });
-                        if (c.initial === c.monthly) {
-                            c.remaining = c.monthly;
-                        }
-                        resetCount++;
-                    }
-                });
-
-                localStorage.setItem('last_auto_reset_month', currentMonthKey);
+            const key = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0');
+            if (localStorage.getItem('last_auto_reset_month') !== key) {
+                let count = 0;
+                commitments.forEach(c => { if (applyReset(c, null)) count++; });
+                localStorage.setItem('last_auto_reset_month', key);
                 saveData();
-
-                if (resetCount > 0) {
-                    showToast("Monthly commitments reset for a new cycle", "📅");
-                }
+                if (count > 0) showToast("Monthly commitments reset for a new cycle", "📅");
             }
         }
 
         function resetPaidItemsOnly() {
-            const currentMonthYearStr = new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-            let resetCount = 0;
-
-            commitments.forEach(c => {
-                if (c.history && c.history.length > 0) {
-                    c.history.forEach(h => {
-                        if (h.monthKey === currentMonthYearStr) {
-                            h.monthKey = "RESET_BY_MONTHLY_RESET";
-                        }
-                    });
-
-                    if (c.initial === c.monthly) {
-                        c.remaining = c.monthly;
-                    }
-                    resetCount++;
-                }
-            });
-
-            if (resetCount > 0) {
-                triggerHaptic('success');
-                playSound('success');
-                saveData();
-                showToast(`Monthly reset completed for ${resetCount} item(s)!`, "🔄");
-            } else {
-                triggerHaptic('light');
-                playSound('click');
-                showToast("No paid commitments found to reset yet.", "💡");
-            }
+            const cur = curMonthKey();
+            let count = 0;
+            commitments.forEach(c => { if (applyReset(c, cur)) count++; });
+            if (count > 0) { win(); animateCards = true; saveData(); showToast(`Monthly reset completed for ${count} item(s)!`, "🔄"); }
+            else { tap(); showToast("No paid commitments found to reset yet.", "💡"); }
         }
 
-        function resetIndividual(id) {
+        /* ---------- History popup ---------- */
+        function openHistoryModal(id) {
+            tap();
+            historyId = id;
+            renderHistoryModal(id);
+            openM('history-modal');
+        }
+        function closeHistoryModal() { tap(); closeM('history-modal'); }
+        function renderHistoryModal(id) {
             const item = commitments.find(c => c.id === id);
-            if (!item) return;
-            
-            showCustomConfirm(`Reset month status for ${item.name}?`, () => {
-                const currentMonthYearStr = new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-                if (item.history) {
-                    item.history.forEach(h => {
-                        if (h.monthKey === currentMonthYearStr) {
-                            h.monthKey = "RESET_BY_MONTHLY_RESET";
-                        }
-                    });
-                }
-                if (item.initial === item.monthly) {
-                    item.remaining = item.monthly;
-                }
-                saveData();
-                showToast(`Reset status for ${item.name}!`, "🔄");
-            });
-        }
-
-        function toggleHistory(id) {
-            triggerHaptic('light');
-            playSound('click');
-            const el = document.getElementById(`history-box-${id}`);
-            if (el) {
-                el.classList.toggle('hidden');
+            const list = document.getElementById('history-list');
+            if (!item) { list.innerHTML = ''; return; }
+            document.getElementById('history-title').innerText = `📜 ${item.name}`;
+            if (!item.history || item.history.length === 0) {
+                list.innerHTML = `<div class="text-center text-slate-500 text-xs py-8">No payment records yet.</div>`;
+                return;
             }
+            list.innerHTML = item.history.map((h, i) => `
+                <div class="flex justify-between items-center bg-white/[.03] px-3 py-2 rounded-xl border border-white/5">
+                    <span class="text-slate-300 text-[11px]">📅 ${esc(h.date)}</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="num font-bold text-emerald-400 text-xs">+${stealthMode ? 'RM •••••' : rm(h.amount)}</span>
+                        <button onclick="deleteHistoryItem(${item.id}, ${i})" title="Delete record" class="text-rose-400 hover:text-rose-300 px-1 font-bold text-base">×</button>
+                    </div>
+                </div>`).join('');
         }
 
+        /* ---------- Payments ---------- */
         function openPayModal(id) {
-            triggerHaptic('light');
-            playSound('click');
+            tap();
             const item = commitments.find(c => c.id === id);
             if (!item) return;
-
             document.getElementById('pay-id').value = item.id;
             document.getElementById('pay-modal-title').innerText = `Pay: ${item.name}`;
             document.getElementById('pay-amount-input').value = item.monthly;
-            document.getElementById('pay-modal').classList.remove('hidden');
+            document.getElementById('pay-hint').classList.toggle('hidden', !isUtility(item));
+            openM('pay-modal');
         }
-
-        function closePayModal() {
-            triggerHaptic('light');
-            playSound('click');
-            document.getElementById('pay-modal').classList.add('hidden');
-        }
+        function closePayModal() { tap(); closeM('pay-modal'); }
 
         function confirmPayment() {
             const id = parseInt(document.getElementById('pay-id').value);
-            const payAmount = parseFloat(document.getElementById('pay-amount-input').value);
-
-            if (isNaN(payAmount) || payAmount <= 0) {
-                triggerHaptic('heavy');
-                showToast("Please enter a valid amount!", "⚠️");
-                return;
-            }
-
+            const amt = parseFloat(document.getElementById('pay-amount-input').value);
+            if (isNaN(amt) || amt <= 0) { triggerHaptic('heavy'); showToast("Please enter a valid amount!", "⚠️"); return; }
             const item = commitments.find(c => c.id === id);
             if (!item) return;
 
             const now = new Date();
             const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
             const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-            const currentMonthYear = now.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+            const monthKey = curMonthKey();
 
             if (!item.history) item.history = [];
-            item.history.unshift({
-                date: `${dateStr}, ${timeStr}`,
-                amount: payAmount,
-                monthKey: currentMonthYear
-            });
+            item.history.unshift({ date: `${dateStr}, ${timeStr}`, amount: amt, monthKey });
 
-            item.remaining = Math.max(0, item.remaining - payAmount);
-            closePayModal();
-            saveData();
-            
-            triggerHaptic('success');
-            playSound('success');
-            showToast(`Payment recorded for ${item.name}!`, "✅");
+            const util = isUtility(item);
+            item.remaining = util ? 0 : Math.max(0, item.remaining - amt);
+            const cleared = !util && item.remaining <= 0;
+
+            closeM('pay-modal');
+            animateCards = false; saveData();
+            win();
+            confetti(cleared);
+            showToast(
+                cleared ? `🎉 ${item.name} fully cleared!` : util ? `${item.name} settled for this month!` : `Payment recorded for ${item.name}!`,
+                cleared ? "🏆" : "✅"
+            );
         }
 
-        function deleteHistoryItem(itemId, historyIndex) {
+        function deleteHistoryItem(itemId, idx) {
             const item = commitments.find(c => c.id === itemId);
             if (!item || !item.history) return;
-
             showCustomConfirm("Delete this payment record and restore balance?", () => {
-                const historyEntry = item.history[historyIndex];
-                item.remaining += historyEntry.amount;
-                item.history.splice(historyIndex, 1);
-                saveData();
+                const rec = item.history[idx];
+                if (isUtility(item)) {
+                    if (rec.monthKey === curMonthKey()) item.remaining = item.initial;
+                } else {
+                    item.remaining += rec.amount;
+                }
+                item.history.splice(idx, 1);
+                animateCards = false; saveData();
+                renderHistoryModal(itemId);
                 showToast("Payment record deleted.", "🗑️");
             });
         }
@@ -658,265 +843,274 @@
         function deleteCommitment(id) {
             const item = commitments.find(c => c.id === id);
             if (!item) return;
-
             showCustomConfirm(`Permanently delete "${item.name}" from portfolio?`, () => {
                 commitments = commitments.filter(c => c.id !== id);
-                saveData();
+                animateCards = true; saveData();
                 showToast(`Deleted ${item.name}`, "🗑️");
             });
         }
 
-        // Format Ordinal Suffix (st, nd, rd, th)
         function formatOrdinal(n) {
             const num = parseInt(n);
             if (isNaN(num)) return n;
-            const s = ["th", "st", "nd", "rd"];
-            const v = num % 100;
+            const s = ["th", "st", "nd", "rd"], v = num % 100;
             return num + (s[(v - 20) % 10] || s[v] || s[0]);
         }
 
         function addNewCommitment() {
             const name = document.getElementById('new-name').value.trim();
             const dueInput = document.getElementById('new-due').value.trim();
-            const initial = parseFloat(document.getElementById('new-initial').value);
+            const type = document.getElementById('new-type').value === 'utility' ? 'utility' : 'debt';
+            const util = type === 'utility';
+            const initialRaw = parseFloat(document.getElementById('new-initial').value);
             const monthly = parseFloat(document.getElementById('new-monthly').value);
-
-            if (!name || !dueInput || isNaN(initial) || isNaN(monthly)) {
-                triggerHaptic('heavy');
-                showToast("Please fill in all fields correctly!", "⚠️");
-                return;
+            if (!name || !dueInput || isNaN(monthly) || (!util && isNaN(initialRaw))) {
+                triggerHaptic('heavy'); showToast("Please fill in all fields correctly!", "⚠️"); return;
             }
-
-            const due = formatOrdinal(dueInput);
+            const initial = util ? monthly : initialRaw;
             const newId = commitments.length > 0 ? Math.max(...commitments.map(c => c.id)) + 1 : 1;
-            commitments.push({ id: newId, name, due, initial, remaining: initial, monthly, history: [] });
-
-            document.getElementById('new-name').value = '';
-            document.getElementById('new-due').value = '';
-            document.getElementById('new-initial').value = '';
-            document.getElementById('new-monthly').value = '';
-
-            saveData();
-            triggerHaptic('success');
-            playSound('success');
+            commitments.push({ id: newId, name, type, due: formatOrdinal(dueInput), initial, remaining: initial, monthly, history: [] });
+            ['new-name', 'new-due', 'new-initial', 'new-monthly'].forEach(i => document.getElementById(i).value = '');
+            closeM('add-modal');
+            animateCards = true; saveData();
+            win(); confetti();
             showToast("New commitment added successfully!", "➕");
         }
 
         function editCommitment(id) {
-            triggerHaptic('light');
-            playSound('click');
+            tap();
             const item = commitments.find(c => c.id === id);
             if (!item) return;
-
-            const numericDue = parseInt(item.due) || item.due;
-
             document.getElementById('edit-id').value = item.id;
             document.getElementById('edit-name').value = item.name;
-            document.getElementById('edit-due').value = numericDue;
+            document.getElementById('edit-due').value = parseInt(item.due) || item.due;
             document.getElementById('edit-initial').value = item.initial;
             document.getElementById('edit-monthly').value = item.monthly;
-
-            document.getElementById('edit-modal').classList.remove('hidden');
+            setFormType('edit', isUtility(item) ? 'utility' : 'debt');
+            openM('edit-modal');
         }
-
-        function closeEditModal() {
-            triggerHaptic('light');
-            playSound('click');
-            document.getElementById('edit-modal').classList.add('hidden');
-        }
+        function closeEditModal() { tap(); closeM('edit-modal'); }
 
         function saveEditCommitment() {
             const id = parseInt(document.getElementById('edit-id').value);
             const name = document.getElementById('edit-name').value.trim();
             const dueInput = document.getElementById('edit-due').value.trim();
+            const type = document.getElementById('edit-type').value === 'utility' ? 'utility' : 'debt';
+            const util = type === 'utility';
             const initial = parseFloat(document.getElementById('edit-initial').value);
             const monthly = parseFloat(document.getElementById('edit-monthly').value);
-
-            if (!name || !dueInput || isNaN(initial) || isNaN(monthly)) {
-                triggerHaptic('heavy');
-                showToast("Please fill in all fields correctly!", "⚠️");
-                return;
+            if (!name || !dueInput || isNaN(monthly) || (!util && isNaN(initial))) {
+                triggerHaptic('heavy'); showToast("Please fill in all fields correctly!", "⚠️"); return;
             }
-
             const item = commitments.find(c => c.id === id);
             if (item) {
-                item.name = name;
-                item.due = formatOrdinal(dueInput);
-                item.monthly = monthly;
-                
-                if (item.initial !== initial) {
-                    let diff = initial - item.initial;
+                const wasUtil = isUtility(item);
+                const cur = curMonthKey();
+                const paidSum = (item.history || []).filter(h => h.monthKey === cur).reduce((s, h) => s + (Number(h.amount) || 0), 0);
+                item.name = name; item.due = formatOrdinal(dueInput); item.monthly = monthly; item.type = type;
+
+                if (util) {
+                    item.initial = monthly;
+                    item.remaining = paidSum > 0 ? 0 : monthly;
+                } else if (wasUtil) {
+                    item.initial = initial;
+                    item.remaining = Math.max(0, initial - paidSum);
+                } else if (item.initial !== initial) {
+                    const diff = initial - item.initial;
                     item.initial = initial;
                     item.remaining = Math.max(0, item.remaining + diff);
                 }
             }
-
-            closeEditModal();
-            saveData();
-            triggerHaptic('success');
-            playSound('success');
-            showToast("Changes saved successfully!", "✏️");
+            closeM('edit-modal');
+            animateCards = false; saveData();
+            win(); showToast("Changes saved successfully!", "✏️");
         }
 
+        /* ---------- Helpers ---------- */
         function getEstimatedPayoff(remaining, monthly) {
             if (monthly <= 0 || remaining <= 0) return "Completed / N/A";
-            const monthsNeeded = Math.ceil(remaining / monthly);
-            const targetDate = new Date();
-            targetDate.setMonth(targetDate.getMonth() + monthsNeeded);
-            return targetDate.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+            const d = new Date();
+            d.setMonth(d.getMonth() + Math.ceil(remaining / monthly));
+            return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
         }
 
+        function dueStatus(dueStr, paidThisMonth, paidFull) {
+            if (paidFull) return { text: 'Cleared 🏆', cls: 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30', accent: '#34d399' };
+            if (paidThisMonth) return { text: 'Paid this month ✓', cls: 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30', accent: '#34d399' };
+            const day = parseInt(dueStr);
+            if (isNaN(day)) return { text: 'Pending', cls: 'bg-slate-500/15 text-slate-300 border border-slate-500/30', accent: '#94a3b8' };
+            const now = new Date(); now.setHours(0, 0, 0, 0);
+            const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const target = new Date(now.getFullYear(), now.getMonth(), Math.min(day, dim));
+            const diff = Math.round((target - now) / 86400000);
+            if (diff < 0) return { text: `Overdue ${-diff}d`, cls: 'bg-rose-500/15 text-rose-300 border border-rose-500/40', accent: '#fb7185' };
+            if (diff === 0) return { text: 'Due today', cls: 'bg-amber-500/20 text-amber-300 border border-amber-500/40', accent: '#f5c451' };
+            if (diff <= 5) return { text: `Due in ${diff}d`, cls: 'bg-amber-500/15 text-amber-300 border border-amber-500/30', accent: '#f5c451' };
+            return { text: `Due in ${diff}d`, cls: 'bg-slate-500/15 text-slate-300 border border-slate-500/25', accent: '#818cf8' };
+        }
+
+        /* ---------- Render ---------- */
         function render() {
-            // Update active state of sorting buttons UI
             ['due', 'highest-balance', 'lowest-balance'].forEach(m => {
                 const b = document.getElementById(`sort-btn-${m}`);
-                if (b) {
-                    if (m === currentSortMode) {
-                        b.className = "py-2 rounded-xl font-bold transition border border-amber-500/40 bg-amber-500/20 text-amber-400 text-center shadow-sm";
-                    } else {
-                        b.className = "py-2 rounded-xl font-semibold transition border border-slate-700/60 bg-slate-800/80 text-slate-300 text-center hover:bg-slate-700 shadow";
-                    }
-                }
+                if (!b) return;
+                b.className = m === currentSortMode
+                    ? "py-2 rounded-xl font-bold transition bg-gradient-to-br from-amber-400/25 to-amber-600/15 text-amber-300 border border-amber-500/40"
+                    : "py-2 rounded-xl font-semibold transition text-slate-400 border border-transparent hover:text-slate-200";
             });
 
             const listEl = document.getElementById('commitment-list');
-            listEl.innerHTML = '';
-            
-            let totalInitialSum = 0;
-            let totalRemainingSum = 0;
-            let totalMonthlySum = 0;
+            let totalInitial = 0, totalRemaining = 0, totalMonthly = 0, debtMonthly = 0;
 
-            // Sort commitments array based on selected mode
-            let sortedCommitments = [...commitments];
-            sortedCommitments.sort((a, b) => {
-                if (currentSortMode === 'highest-balance') {
-                    return b.remaining - a.remaining;
-                } else if (currentSortMode === 'lowest-balance') {
-                    return a.remaining - b.remaining;
-                }
+            const sorted = [...commitments].sort((a, b) => {
+                if (currentSortMode === 'highest-balance') return b.remaining - a.remaining;
+                if (currentSortMode === 'lowest-balance') return a.remaining - b.remaining;
                 return (parseInt(a.due) || 0) - (parseInt(b.due) || 0);
             });
 
-            let visibleCount = 0;
-            const currentMonthYearStr = new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+            const curMonth = curMonthKey();
+            let html = '', visible = 0;
 
-            sortedCommitments.forEach(c => {
-                totalInitialSum += Number(c.initial) || 0;
-                totalRemainingSum += Number(c.remaining) || 0;
-                if ((Number(c.remaining) || 0) > 0) {
-                    totalMonthlySum += Number(c.monthly) || 0;
+            sorted.forEach(c => {
+                const util = isUtility(c);
+                const remainingNum = Number(c.remaining) || 0;
+
+                if (util) {
+                    totalMonthly += Number(c.monthly) || 0;
+                } else {
+                    totalInitial += Number(c.initial) || 0;
+                    totalRemaining += remainingNum;
+                    if (remainingNum > 0) { totalMonthly += Number(c.monthly) || 0; debtMonthly += Number(c.monthly) || 0; }
                 }
 
-                const isPaidFull = c.remaining <= 0;
-                const hasPaidThisMonth = c.history && c.history.some(h => h.monthKey === currentMonthYearStr);
+                const paidThisMonth = !!(c.history && c.history.some(h => h.monthKey === curMonth));
+                const paidFull = !util && c.remaining <= 0;
+                const done = paidFull || (util && paidThisMonth);
+                if ((paidFull || paidThisMonth) && !showCompleted) return;
 
-                if ((isPaidFull || hasPaidThisMonth) && !showCompleted) {
-                    return;
-                }
+                const delay = (visible++) * 70;
+                let pct = c.initial > 0 ? ((c.initial - c.remaining) / c.initial) * 100 : 0;
+                pct = Math.min(100, Math.max(0, pct));
+                const st = dueStatus(c.due, paidThisMonth, paidFull);
+                const payoff = getEstimatedPayoff(c.remaining, c.monthly);
 
-                visibleCount++;
+                const dInit = stealthMode ? 'RM ••••••' : rm(c.initial);
+                const dRem = stealthMode ? 'RM ••••••' : rm(c.remaining);
+                const dMon = stealthMode ? 'RM •••' : rm(c.monthly);
 
-                let progressPercent = c.initial > 0 ? ((c.initial - c.remaining) / c.initial) * 100 : 0;
-                progressPercent = Math.min(100, Math.max(0, progressPercent));
+                const typeChip = util
+                    ? `<span class="chip bg-sky-500/15 text-sky-300 border border-sky-500/30 font-bold">💡 Utility</span>`
+                    : `<span class="chip bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">Due ${esc(c.due)}</span>`;
 
-                const payoffEst = getEstimatedPayoff(c.remaining, c.monthly);
+                const payoffRow = util
+                    ? `<span class="text-slate-400 font-medium">🔁 Recurring bill</span>
+                       <span class="text-sky-300 font-bold">${done ? 'Settled ✓' : 'Resets monthly'}</span>`
+                    : `<span class="text-slate-400 font-medium">✨ Est. Payoff</span>
+                       <span class="text-amber-300 font-bold">${paidFull ? 'Completed ✓' : (stealthMode ? '••••••' : payoff)}</span>`;
 
-                let historyHtml = '';
-                if (c.history && c.history.length > 0) {
-                    historyHtml = `
-                        <div class="pt-2 border-t border-slate-800/80">
-                            <button onclick="toggleHistory(${c.id})" class="text-[11px] text-amber-400/90 font-bold hover:underline flex items-center justify-between w-full py-1">
-                                <span>📜 Payment History (${c.history.length})</span>
-                                <span class="text-[10px]">▼ Toggle</span>
+                const payLabel = done ? 'Paid ✓' : (util ? 'Pay Bill' : 'Pay This Month');
+
+                html += `
+                <div class="c-card glass-luxury ${animateCards ? 'enter' : ''} ${done ? 'opacity-70' : ''} p-5 pl-6 rounded-3xl space-y-4"
+                     style="--accent:${st.accent};${animateCards ? `animation-delay:${delay}ms` : ''}">
+                    
+                    <!-- Top header row with title, due badges & side-by-side action buttons -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center flex-wrap gap-2 mb-1">
+                                <h3 class="font-extrabold text-[16px] tracking-tight truncate ${done ? 'line-through text-slate-400' : 'text-slate-50'}">${esc(c.name)}</h3>
+                                ${typeChip}
+                                <span class="chip ${st.cls}">${st.text}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 font-medium">
+                                Estimate: <span class="num text-amber-400 font-bold">${dMon}</span>
+                            </p>
+                        </div>
+
+                        <!-- Pill action buttons container -->
+                        <div class="action-pill shrink-0">
+                            <button onclick="openHistoryModal(${c.id})" title="Payment History" class="action-btn action-btn-history">
+                                📜
                             </button>
-                            <div id="history-box-${c.id}" class="hidden mt-2 space-y-1.5 bg-[#030712]/70 p-2.5 rounded-2xl border border-slate-800/80 max-h-36 overflow-y-auto">
-                                ${c.history.map((h, idx) => `
-                                    <div class="flex justify-between items-center text-xs bg-slate-900 px-3 py-1.5 rounded-xl border border-slate-800">
-                                        <span class="text-slate-300 text-[11px]">📅 ${h.date}</span>
-                                        <div class="flex items-center space-x-2">
-                                            <span class="font-extrabold text-amber-400 text-xs">+${stealthMode ? 'RM •••••' : 'RM ' + h.amount.toFixed(2)}</span>
-                                            <button onclick="deleteHistoryItem(${c.id}, ${idx})" title="Delete record" class="text-red-400 hover:text-red-300 px-1 font-bold text-sm">×</button>
-                                        </div>
-                                    </div>
-                                `).join('')}
-                            </div>
+                            <button onclick="editCommitment(${c.id})" title="Edit Commitment" class="action-btn action-btn-edit">
+                                ✏️
+                            </button>
+                            <button onclick="deleteCommitment(${c.id})" title="Delete Commitment" class="action-btn action-btn-delete">
+                                🗑️
+                            </button>
                         </div>
-                    `;
-                }
-
-                const displayInitial = stealthMode ? 'RM ••••••' : `RM ${Number(c.initial).toFixed(2)}`;
-                const displayRemaining = stealthMode ? 'RM ••••••' : `RM ${Number(c.remaining).toFixed(2)}`;
-                const displayMonthly = stealthMode ? 'RM •••' : `RM ${c.monthly.toFixed(2)}`;
-
-                listEl.innerHTML += `
-                    <div class="glass-luxury border ${isPaidFull ? 'border-emerald-900/40 opacity-60' : 'border-slate-800/80'} p-4.5 rounded-3xl space-y-3 shadow-xl transition-all">
-                        <div class="flex items-start justify-between">
-                            <div>
-                                <h3 class="font-bold text-sm tracking-tight ${isPaidFull ? 'line-through text-slate-400' : 'text-slate-100'}">${c.name}</h3>
-                                <p class="text-[11px] text-slate-400 font-medium mt-0.5">Due: ${c.due}</p>
-                            </div>
-                            <span class="text-[11px] px-2.5 py-1 rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold tracking-tight">
-                                Monthly: ${displayMonthly}
-                            </span>
-                        </div>
-
-                        <!-- Progress Bar -->
-                        <div class="w-full bg-[#030712] rounded-full h-1.5 overflow-hidden border border-slate-800">
-                            <div class="bg-gradient-to-r from-amber-500 to-emerald-400 h-full rounded-full transition-all duration-500" style="width: ${progressPercent}%"></div>
-                        </div>
-
-                        <div class="grid grid-cols-2 gap-2 text-xs pt-1">
-                            <div>
-                                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Original Amount</span>
-                                <span class="text-slate-300 font-semibold">${displayInitial}</span>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-slate-400 block text-[10px] uppercase font-semibold">Remaining Balance</span>
-                                <span class="font-extrabold text-sm ${isPaidFull ? 'text-emerald-400' : 'text-red-400'}">${displayRemaining}</span>
-                            </div>
-                        </div>
-
-                        <!-- Est Payoff Note -->
-                        <div class="bg-[#030712]/60 px-3 py-1.5 rounded-xl border border-slate-800/60 flex justify-between items-center text-[11px]">
-                            <span class="text-slate-400 font-medium">✨ Est. Payoff:</span>
-                            <span class="text-amber-400 font-bold">${isPaidFull ? 'Completed ✓' : (stealthMode ? '••••••' : payoffEst)}</span>
-                        </div>
-
-                        <div class="flex items-center justify-between pt-2 border-t border-slate-800/80">
-                            <div class="flex space-x-1.5">
-                                <button onclick="editCommitment(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-slate-800/80 text-slate-300 hover:bg-slate-700 font-medium border border-slate-700/60">Edit</button>
-                                <button onclick="resetIndividual(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-amber-500/10 text-amber-400 hover:bg-amber-500/20 font-medium border border-amber-500/30" title="Reset for new month cycle">Monthly Reset</button>
-                                <button onclick="deleteCommitment(${c.id})" class="px-2.5 py-1 rounded-xl text-[11px] bg-red-950/50 text-red-400 hover:bg-red-900/50 font-medium border border-red-900/40">Delete</button>
-                            </div>
-                            <div>
-                                <button onclick="openPayModal(${c.id})" class="px-4 py-2 rounded-xl text-xs font-bold transition shadow-md ${isPaidFull ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30' : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 shadow-amber-500/25'}">
-                                    ${isPaidFull ? 'Paid ✓' : 'Pay This Month'}
-                                </button>
-                            </div>
-                        </div>
-
-                        ${historyHtml}
                     </div>
-                `;
+
+                    <!-- Progress bar -->
+                    <div>
+                        <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider">
+                            <span>${util ? 'This Month' : 'Progress'}</span>
+                            <span class="num text-amber-300">${pct.toFixed(1)}%</span>
+                        </div>
+                        <div class="bar-track w-full rounded-full h-2 overflow-hidden">
+                            <div class="bar-fill h-full rounded-full" style="width:${animateCards ? 0 : pct}%" data-w="${pct}"></div>
+                        </div>
+                    </div>
+
+                    <!-- Balance figures -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">${util ? 'Bill Amount' : 'Original Amount'}</span>
+                            <span class="num text-slate-300 font-semibold text-[13px]">${dInit}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">${util ? 'To Pay' : 'Balance Remaining'}</span>
+                            <span class="num font-extrabold text-[17px] ${done ? 'text-emerald-400' : 'text-rose-400'}">${dRem}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/30 px-3 py-2 rounded-xl border border-white/5 flex justify-between items-center text-[11px]">
+                        ${payoffRow}
+                    </div>
+
+                    <div class="pt-3 border-t border-white/5">
+                        <button onclick="openPayModal(${c.id})" class="ripple-host w-full px-4 py-3 rounded-xl text-xs ${done ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold' : 'btn-gold'}">
+                            ${payLabel}
+                        </button>
+                    </div>
+                </div>`;
             });
 
-            if (visibleCount === 0) {
-                listEl.innerHTML = `
-                    <div class="glass-luxury p-6 rounded-3xl text-center text-slate-400 text-xs space-y-2 border border-slate-800">
-                        <p class="text-base">🎉</p>
-                        <p class="font-semibold">All active commitments have been paid for this month!</p>
-                        <p class="text-[10px] text-slate-500">Tap "Show completed" above to view the full list.</p>
-                    </div>
-                `;
+            if (visible === 0) {
+                html = `
+                <div class="glass-luxury enter p-8 rounded-3xl text-center text-slate-400 text-xs space-y-2">
+                    <p class="text-4xl">🎉</p>
+                    <p class="font-bold text-slate-200 text-sm">All commitments paid for this month!</p>
+                    <p class="text-[11px] text-slate-500">Tap "Show completed" above to view the full list.</p>
+                </div>`;
             }
+            listEl.innerHTML = html;
 
-            // Paparan Header / Card Utama (Sokong Stealth Mode)
-            document.getElementById('total-initial').innerText = stealthMode ? 'RM ••••••' : `RM ${totalInitialSum.toFixed(2)}`;
-            document.getElementById('total-remaining').innerText = stealthMode ? 'RM ••••••' : `RM ${totalRemainingSum.toFixed(2)}`;
-            document.getElementById('total-monthly').innerText = stealthMode ? 'RM •••••' : `RM ${totalMonthlySum.toFixed(2)}`;
+            if (animateCards) {
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    listEl.querySelectorAll('.bar-fill').forEach(b => b.style.width = b.dataset.w + '%');
+                }));
+            }
+            animateCards = false;
+
+            // Hero
+            setMoney('total-initial', totalInitial);
+            setMoney('total-remaining', totalRemaining);
+            setMoney('total-monthly', totalMonthly);
+
+            const cleared = totalInitial > 0 ? Math.min(100, Math.max(0, ((totalInitial - totalRemaining) / totalInitial) * 100)) : 0;
+            document.getElementById('ring-fg').style.strokeDashoffset = CIRC * (1 - cleared / 100);
+            document.getElementById('ring-pct').innerText = cleared.toFixed(cleared >= 10 || cleared === 0 ? 0 : 1) + '%';
+
+            const sub = document.getElementById('hero-sub');
+            if (totalRemaining <= 0 && totalInitial > 0) sub.innerText = '🏆 Debt-free. Legendary.';
+            else if (debtMonthly > 0) {
+                const months = Math.ceil(totalRemaining / debtMonthly);
+                const yrs = Math.floor(months / 12), mo = months % 12;
+                sub.innerText = stealthMode ? 'Stay the course 💪' : `≈ ${yrs ? yrs + 'y ' : ''}${mo}m to debt-free`;
+            } else sub.innerText = 'Add a commitment to begin';
         }
 
-        // Inisialisasi awal UI & Semakan Auto-Reset Automatik
         updateAvatarUI();
         checkAutoMonthlyReset();
         render();
