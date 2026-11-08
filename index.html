@@ -10,7 +10,7 @@
     <link rel="manifest" href="manifest.json">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Vault">
+    <meta name="apple-mobile-web-app-title" content="Debt Tracker">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -678,7 +678,7 @@
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = "vault_elite_finance_backup_" + new Date().toISOString().slice(0, 10) + ".json";
+                a.download = "debt_tracker_backup_" + new Date().toISOString().slice(0, 10) + ".json";
                 document.body.appendChild(a); a.click();
                 setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
                 showToast("Backup file downloaded (.json)!", "💾");
