@@ -899,10 +899,10 @@
             });
         }
 
-        /* ---------- Export & Import Data (Ditingkatkan & Disanitasi) ---------- */
+        /* ---------- Export & Import Data (Dipertingkat agar menyokong pelbagai format JSON) ---------- */
         function exportData() {
             tap();
-            const dateStr = new Date().toLocaleDateString('en-CA'); // Format YYYY-MM-DD tempatan yang tepat
+            const dateStr = new Date().toLocaleDateString('en-CA');
             const exportObj = {
                 version: "2.6",
                 exportDate: new Date().toISOString(),
@@ -927,9 +927,24 @@
             reader.onload = function(e) {
                 try {
                     const parsed = JSON.parse(e.target.result);
-                    if (parsed && Array.isArray(parsed.commitments)) {
-                        // Sanitasi data supaya tiada nilai yang rosak/NaN
-                        commitments = parsed.commitments.map(c => ({
+                    
+                    // Sokong format fail array terus [...] atau objek bersarang { commitments: [...] }
+                    let rawCommitments = null;
+                    let rawProfile = null;
+
+                    if (Array.isArray(parsed)) {
+                        rawCommitments = parsed;
+                    } else if (parsed && typeof parsed === 'object') {
+                        if (Array.isArray(parsed.commitments)) {
+                            rawCommitments = parsed.commitments;
+                        }
+                        if (parsed.userProfile && typeof parsed.userProfile === 'object') {
+                            rawProfile = parsed.userProfile;
+                        }
+                    }
+
+                    if (rawCommitments) {
+                        commitments = rawCommitments.map(c => ({
                             id: c.id || 'c_' + Date.now() + Math.random(),
                             type: c.type || 'debt',
                             name: c.name || 'Unnamed Commitment',
@@ -941,11 +956,11 @@
                             history: Array.isArray(c.history) ? c.history : []
                         }));
 
-                        if (parsed.userProfile && typeof parsed.userProfile === 'object') {
+                        if (rawProfile) {
                             userProfile = {
-                                name: parsed.userProfile.name || userProfile.name,
-                                initials: parsed.userProfile.initials || userProfile.initials,
-                                autoReset: typeof parsed.userProfile.autoReset === 'boolean' ? parsed.userProfile.autoReset : userProfile.autoReset
+                                name: rawProfile.name || userProfile.name,
+                                initials: rawProfile.initials || userProfile.initials,
+                                autoReset: typeof rawProfile.autoReset === 'boolean' ? rawProfile.autoReset : userProfile.autoReset
                             };
                         }
 
