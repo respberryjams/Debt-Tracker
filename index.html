@@ -462,17 +462,10 @@
     </div>
 
     <script>
-        // Inline Service Worker Registration via Blob
+        // Physical Service Worker Registration (Membolehkan PWA Install penuh di GitHub Pages/Server)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                const swCode = `
-                    self.addEventListener('install', (e) => self.skipWaiting());
-                    self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
-                    self.addEventListener('fetch', (e) => e.respondWith(fetch(e.request).catch(() => caches.match(e.request))));
-                `;
-                const blob = new Blob([swCode], { type: 'text/javascript' });
-                const blobUrl = URL.createObjectURL(blob);
-                navigator.serviceWorker.register(blobUrl).catch(() => {});
+                navigator.serviceWorker.register('./sw.js').catch(() => {});
             });
         }
 
@@ -899,7 +892,7 @@
             });
         }
 
-        /* ---------- Export & Import Data (Dipertingkat agar menyokong pelbagai format JSON) ---------- */
+        /* ---------- Export & Import Data ---------- */
         function exportData() {
             tap();
             const dateStr = new Date().toLocaleDateString('en-CA');
@@ -927,8 +920,6 @@
             reader.onload = function(e) {
                 try {
                     const parsed = JSON.parse(e.target.result);
-                    
-                    // Sokong format fail array terus [...] atau objek bersarang { commitments: [...] }
                     let rawCommitments = null;
                     let rawProfile = null;
 
