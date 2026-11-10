@@ -462,7 +462,7 @@
     </div>
 
     <script>
-        // Physical Service Worker Registration (Membolehkan PWA Install penuh di GitHub Pages/Server)
+        // Pendaftaran fizikal Service Worker (sw.js)
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./sw.js').catch(() => {});
@@ -488,7 +488,7 @@
         const CIRC = 213.63;
         const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         
-        // Fungsi pembantu ordinal suffix yang betul (1st, 2nd, 3rd, 4th...)
+        // Fungsi pembantu ordinal suffix (1st, 2nd, 3rd, 4th...)
         function getOrdinalSuffix(n) {
             const s = ["th", "st", "nd", "rd"];
             const v = n % 100;
