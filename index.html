@@ -475,6 +475,15 @@
             return n + (s[(v - 20) % 10] || s[v] || s[0]);
         }
 
+        // Fungsi kiraan Estimated Payoff
+        function getEstPayoff(remaining, monthly) {
+            if (!monthly || monthly <= 0 || !remaining || remaining <= 0) return 'N/A';
+            const months = Math.ceil(remaining / monthly);
+            const d = new Date();
+            d.setMonth(d.getMonth() + months);
+            return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+        }
+
         // Stealth mode menggunakan simbol asterisk 6 cabang (✱✱✱✱✱✱)
         const rm = n => stealthMode ? '✱✱✱✱✱✱' : 'RM ' + Number(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         
@@ -1019,6 +1028,7 @@
                 const accent = isComp ? '#34d399' : (isUtility(c) ? '#60a5fa' : '#f5c451');
                 const prog = c.initialAmount > 0 ? Math.min(100, Math.max(0, ((c.initialAmount - c.remainingBalance) / c.initialAmount) * 100)) : 0;
                 const dueFormatted = getOrdinalSuffix(c.dueDate);
+                const estPayoff = !isUtility(c) ? getEstPayoff(c.remainingBalance, c.monthlyPayment) : null;
 
                 return `
                     <div class="c-card glass-luxury p-5 rounded-3xl space-y-4 enter" style="--accent:${accent}; animation-delay:${i * 0.05}s">
@@ -1026,7 +1036,7 @@
                             <div>
                                 <div class="flex items-center space-x-2">
                                     <span class="chip" style="background:${accent}22; color:${accent}">${isUtility(c) ? '💡 UTILITY' : '💳 DEBT'}</span>
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Due 📅 ${dueFormatted}</span>
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Due Date: ${dueFormatted}</span>
                                 </div>
                                 <h4 class="text-base font-extrabold text-slate-100 mt-1">${esc(c.name)}</h4>
                             </div>
@@ -1048,8 +1058,11 @@
                             </div>
                         ` : ''}
 
-                        <div class="flex justify-between items-center pt-2 border-t border-white/5">
-                            <span class="text-xs text-slate-400">Monthly: <strong class="num text-slate-200">${rm(c.monthlyPayment)}</strong></span>
+                        <div class="flex justify-between items-center pt-2 border-t border-white/5 text-xs text-slate-400">
+                            <div>
+                                Monthly: <strong class="num text-slate-200">${rm(c.monthlyPayment)}</strong>
+                                ${estPayoff ? `<span class="block text-[10px] text-amber-400/90 font-medium mt-0.5">Est Payoff: ${estPayoff}</span>` : ''}
+                            </div>
                             <div class="flex items-center space-x-2">
                                 <div class="action-pill">
                                     <button onclick="openHistoryModal('${c.id}')" title="Payment History" class="action-btn action-btn-history">📜</button>
