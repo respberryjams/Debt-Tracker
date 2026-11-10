@@ -488,6 +488,13 @@
         const CIRC = 213.63;
         const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
         
+        // Fungsi pembantu ordinal suffix yang betul (1st, 2nd, 3rd, 4th...)
+        function getOrdinalSuffix(n) {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
+
         // Stealth mode menggunakan simbol asterisk 6 cabang (✱✱✱✱✱✱)
         const rm = n => stealthMode ? '✱✱✱✱✱✱' : 'RM ' + Number(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         
@@ -1031,6 +1038,7 @@
                 const isComp = c.remainingBalance === 0 || paidThisMonth;
                 const accent = isComp ? '#34d399' : (isUtility(c) ? '#60a5fa' : '#f5c451');
                 const prog = c.initialAmount > 0 ? Math.min(100, Math.max(0, ((c.initialAmount - c.remainingBalance) / c.initialAmount) * 100)) : 0;
+                const dueFormatted = getOrdinalSuffix(c.dueDate);
 
                 return `
                     <div class="c-card glass-luxury p-5 rounded-3xl space-y-4 enter" style="--accent:${accent}; animation-delay:${i * 0.05}s">
@@ -1038,7 +1046,7 @@
                             <div>
                                 <div class="flex items-center space-x-2">
                                     <span class="chip" style="background:${accent}22; color:${accent}">${isUtility(c) ? '💡 UTILITY' : '💳 DEBT'}</span>
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Due 📅 ${c.dueDate}th</span>
+                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Due 📅 ${dueFormatted}</span>
                                 </div>
                                 <h4 class="text-base font-extrabold text-slate-100 mt-1">${esc(c.name)}</h4>
                             </div>
