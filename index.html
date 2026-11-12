@@ -275,7 +275,7 @@
                 <button onclick="resetPaidItemsOnly()" title="Reset paid status for new month" class="btn-ghost ripple-host px-3 py-2 rounded-xl text-[10px] text-amber-400 font-bold flex items-center space-x-1.5">
                     <span>Monthly Reset</span>
                 </button>
-                <button onclick="openProfileModal()" id="user-avatar-btn" title="Profile & settings" class="w-10 h-10 rounded-2xl btn-gold flex items-center justify-center text-xs">MS</button>
+                <button onclick="openProfileModal()" id="user-avatar-btn" title="Profile & settings" class="w-10 h-10 rounded-2xl btn-gold flex items-center justify-center text-xs">PG</button>
             </div>
         </header>
 
@@ -498,7 +498,7 @@
         <div class="modal-card glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30">
             <h3 class="text-sm font-extrabold uppercase tracking-widest gold-text">User Profile & Settings</h3>
             <div class="space-y-3">
-                <div><label class="lbl">Your Name / Initials</label><input type="text" id="profile-name-input" placeholder="e.g. ALI" class="field"></div>
+                <div><label class="lbl">Your Name / Initials</label><input type="text" id="profile-name-input" placeholder="e.g. Ahmad Ali" class="field"></div>
                 <div class="pt-3 border-t border-white/5 flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-200">Automatic Monthly Reset</span>
                     <button onclick="toggleAutoResetSetting()" id="auto-reset-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition">ON</button>
@@ -539,10 +539,7 @@
             };
         })();
 
-        const initialCommitments = [
-            { id: 1, name: "Spay Later", type: "debt", due: "10th", initial: 10000.00, remaining: 10000.00, monthly: 2100.00, history: [] },
-            { id: 2, name: "AKPK", type: "debt", due: "5th", initial: 40945.76, remaining: 40945.76, monthly: 700.00, history: [] }
-        ];
+        const initialCommitments = [];   // blank by default: each user starts with an empty portfolio
 
         let commitments = (() => { try { return JSON.parse(store.get('my_commitments_v26')) || initialCommitments; } catch (e) { return initialCommitments; } })();
         let showCompleted = false;
@@ -550,7 +547,7 @@
         let stealthMode = false;
         let animateCards = true;
         let historyId = null;
-        let userProfile = (() => { try { return JSON.parse(store.get('debt_tracker_user')); } catch (e) { return null; } })() || { name: "Mohd Saifullah", initials: "MS", autoReset: true };
+        let userProfile = (() => { try { return JSON.parse(store.get('debt_tracker_user')); } catch (e) { return null; } })() || { name: "Pengguna", initials: "PG", autoReset: true };
         if (typeof userProfile.feedback === 'undefined') userProfile.feedback = true;
         let filterMode = 'all';
         let searchQuery = '';
@@ -1285,6 +1282,14 @@
                     <p class="text-4xl">🔎</p>
                     <p class="font-bold text-slate-200 text-sm">No commitments match</p>
                     <button onclick="clearFilters()" class="btn-ghost px-4 py-2 rounded-xl text-[11px] text-amber-400 font-bold mt-2">Clear filters</button>
+                </div>`;
+            } else if (visible === 0 && commitments.length === 0) {
+                html = `
+                <div class="glass-luxury enter p-8 rounded-3xl text-center text-slate-400 text-xs space-y-3">
+                    <p class="text-4xl">🗂️</p>
+                    <p class="font-bold text-slate-200 text-sm">No commitments yet</p>
+                    <p class="text-[11px] text-slate-500">Add your first loan or bill to start tracking.</p>
+                    <button onclick="openAddModal()" class="btn-gold ripple-host px-5 py-2.5 rounded-xl text-xs mt-1">+ Add Commitment</button>
                 </div>`;
             } else if (visible === 0) {
                 html = `
