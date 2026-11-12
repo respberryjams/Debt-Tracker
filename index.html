@@ -198,6 +198,8 @@
         .insight { transition:transform .25s ease, border-color .25s; }
         .insight:hover { transform:translateY(-2px); border-color:rgba(245,196,81,.25); }
         .overdue-pulse { animation:overdue 2.2s ease-in-out infinite; }
+        /* a card can be both 'enter' and 'overdue-pulse': keep BOTH animations, otherwise the entrance never runs and the card stays invisible */
+        .enter.overdue-pulse { animation: enter .6s cubic-bezier(.22,1,.36,1) forwards, overdue 2.2s ease-in-out .6s infinite; }
         @keyframes overdue { 0%,100%{ box-shadow:0 0 0 0 rgba(251,113,133,0);} 50%{ box-shadow:0 0 0 4px rgba(251,113,133,.12);} }
         .field.err { border-color:var(--ruby); box-shadow:0 0 0 4px rgba(251,113,133,.14); animation:shake .35s; }
         @keyframes shake { 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
@@ -209,6 +211,22 @@
         .fab { transition:transform .3s cubic-bezier(.22,1,.36,1), opacity .3s; }
         .fab.away { transform:translateY(120px) scale(.8); opacity:0; }
         .no-scrollbar::-webkit-scrollbar { display:none; }
+
+
+        /* ================= PERFORMANCE (many cards on phones) ================= */
+        /* 29 cards x backdrop-filter + infinite animations overload mobile GPUs -> blank/black areas. */
+        .c-card.glass-luxury {
+            -webkit-backdrop-filter: none; backdrop-filter: none;
+            background: linear-gradient(145deg, rgba(24,30,46,.95) 0%, rgba(10,14,24,.97) 100%);
+            content-visibility: auto; contain-intrinsic-size: auto 340px;
+        }
+        .c-card .bar-fill::after { animation: none; display: none; }
+        .c-card { transition: border-color .25s; }
+        @media (max-width: 640px) {
+            .aurora span { filter: blur(55px); animation: none; will-change: auto; }
+            .grain { display: none; }
+            .gold-text { animation: none; }
+        }
 
         /* ================= MOBILE APP POLISH ================= */
         html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: pan-x pan-y; }   /* no pinch / double-tap zoom */
@@ -480,7 +498,7 @@
         <div class="modal-card glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30">
             <h3 class="text-sm font-extrabold uppercase tracking-widest gold-text">User Profile & Settings</h3>
             <div class="space-y-3">
-                <div><label class="lbl">Your Name / Initials</label><input type="text" id="profile-name-input" placeholder="e.g. Mohd Saifullah" class="field"></div>
+                <div><label class="lbl">Your Name / Initials</label><input type="text" id="profile-name-input" placeholder="e.g. ALI" class="field"></div>
                 <div class="pt-3 border-t border-white/5 flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-200">Automatic Monthly Reset</span>
                     <button onclick="toggleAutoResetSetting()" id="auto-reset-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition">ON</button>
@@ -532,7 +550,7 @@
         let stealthMode = false;
         let animateCards = true;
         let historyId = null;
-        let userProfile = (() => { try { return JSON.parse(store.get('debt_tracker_user')); } catch (e) { return null; } })() || { name: "ALI", initials: "MS", autoReset: true };
+        let userProfile = (() => { try { return JSON.parse(store.get('debt_tracker_user')); } catch (e) { return null; } })() || { name: "Mohd Saifullah", initials: "MS", autoReset: true };
         if (typeof userProfile.feedback === 'undefined') userProfile.feedback = true;
         let filterMode = 'all';
         let searchQuery = '';
@@ -1195,8 +1213,8 @@
                 const payLabel = done ? 'Paid ✓' : (util ? 'Pay Bill' : 'Pay This Month');
 
                 html += `
-                <div class="c-card glass-luxury ${animateCards ? 'enter' : ''} ${done ? 'opacity-70' : ''} ${st.overdue ? 'overdue-pulse' : ''} p-5 pl-6 rounded-3xl space-y-4"
-                     style="--accent:${st.accent};${animateCards ? `animation-delay:${delay}ms` : ''}">
+                <div class="c-card glass-luxury ${animateCards && visible <= 8 ? 'enter' : ''} ${done ? 'opacity-70' : ''} ${st.overdue ? 'overdue-pulse' : ''} p-5 pl-6 rounded-3xl space-y-4"
+                     style="--accent:${st.accent};${animateCards && visible <= 8 ? `animation-delay:${delay}ms` : ''}">
                     
                     <!-- Top header row with title, due badges & side-by-side action buttons -->
                     <div class="flex items-start justify-between gap-2">
