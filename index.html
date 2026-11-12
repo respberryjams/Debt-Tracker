@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="theme-color" content="#050508">
-    <title>Debt Tracker</title>
+    <title>Vault — Elite Finance Tracker</title>
     <link rel="icon" type="image/jpeg" href="https://i.imgur.com/UbVI1ct.jpeg">
     <link rel="apple-touch-icon" href="https://i.imgur.com/UbVI1ct.jpeg">
     <link rel="manifest" href="manifest.json">
@@ -211,7 +211,8 @@
         .no-scrollbar::-webkit-scrollbar { display:none; }
 
         /* ================= MOBILE APP POLISH ================= */
-        html { -webkit-text-size-adjust: 100%; }
+        html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; touch-action: pan-x pan-y; }   /* no pinch / double-tap zoom */
+        body { touch-action: pan-x pan-y; }
         body { overscroll-behavior-y: none; padding-top: calc(1rem + env(safe-area-inset-top)) !important; }
         body:has(.modal.open) { overflow: hidden; }
         button, label, .field { touch-action: manipulation; }
@@ -531,7 +532,7 @@
         let stealthMode = false;
         let animateCards = true;
         let historyId = null;
-        let userProfile = (() => { try { return JSON.parse(store.get('debt_tracker_user')); } catch (e) { return null; } })() || { name: "Mohd Saifullah", initials: "MS", autoReset: true };
+        let userProfile = (() => { try { return JSON.parse(store.get('debt_tracker_user')); } catch (e) { return null; } })() || { name: "ALI", initials: "MS", autoReset: true };
         if (typeof userProfile.feedback === 'undefined') userProfile.feedback = true;
         let filterMode = 'all';
         let searchQuery = '';
@@ -1423,6 +1424,9 @@
                 return;
             }
         });
+
+        /* lock pinch-zoom like a native app (iOS Safari ignores user-scalable=no); double-tap zoom is blocked by CSS touch-action */
+        ['gesturestart', 'gesturechange', 'gestureend'].forEach(t => document.addEventListener(t, e => e.preventDefault()));
 
         /* PWA: service worker */
         if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
