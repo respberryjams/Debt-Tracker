@@ -484,14 +484,6 @@
                     <span class="text-xs font-bold text-slate-200">Automatic Monthly Reset</span>
                     <button onclick="toggleAutoResetSetting()" id="auto-reset-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition">ON</button>
                 </div>
-                <!-- Suis Auto Backup Setiap Bulan -->
-                <div class="pt-3 border-t border-white/5 flex items-center justify-between">
-                    <div>
-                        <span class="text-xs font-bold text-slate-200 block">Auto Monthly Backup</span>
-                        <span class="text-[10px] text-slate-400">Auto download JSON on new month</span>
-                    </div>
-                    <button onclick="toggleAutoBackupSetting()" id="auto-backup-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition">ON</button>
-                </div>
                 <div class="pt-3 border-t border-white/5 flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-200">Sound & Vibration</span>
                     <button onclick="toggleFeedbackSetting()" id="feedback-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition">ON</button>
@@ -539,9 +531,8 @@
         let stealthMode = false;
         let animateCards = true;
         let historyId = null;
-        let userProfile = (() => { try { return JSON.parse(store.get('debt_tracker_user')); } catch (e) { return null; } })() || { name: "Mohd Saifullah", initials: "MS", autoReset: true, autoBackup: true };
+        let userProfile = (() => { try { return JSON.parse(store.get('debt_tracker_user')); } catch (e) { return null; } })() || { name: "Mohd Saifullah", initials: "MS", autoReset: true };
         if (typeof userProfile.feedback === 'undefined') userProfile.feedback = true;
-        if (typeof userProfile.autoBackup === 'undefined') userProfile.autoBackup = true;
         let filterMode = 'all';
         let searchQuery = '';
         const PALETTE = ['#f5c451', '#34d399', '#818cf8', '#fb7185', '#38bdf8', '#f472b6', '#a3e635'];
@@ -708,25 +699,11 @@
                 btn.innerText = "OFF";
             }
         }
-        function updateAutoBackupToggleUI() {
-            const btn = document.getElementById('auto-backup-toggle-btn');
-            if (userProfile.autoBackup) {
-                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
-                btn.innerText = "ON";
-            } else {
-                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-slate-800 text-slate-500 border border-slate-700";
-                btn.innerText = "OFF";
-            }
-        }
         function toggleAutoResetSetting() { tap(); userProfile.autoReset = !userProfile.autoReset; updateAutoResetToggleUI(); }
-        function toggleAutoBackupSetting() { tap(); userProfile.autoBackup = !userProfile.autoBackup; updateAutoBackupToggleUI(); }
-        
         function openProfileModal() {
             tap();
             document.getElementById('profile-name-input').value = userProfile.name;
             updateAutoResetToggleUI();
-            updateAutoBackupToggleUI();
-            updateFeedbackToggleUI();
             openM('profile-modal');
         }
         function closeProfileModal() { tap(); closeM('profile-modal'); }
@@ -804,44 +781,55 @@
         }
 
         /* ---------- Data ---------- */
-        function saveData() { 
-            store.set('my_commitments_v26', JSON.stringify(commitments)); 
-            store.set('debt_tracker_user', JSON.stringify(userProfile)); 
-            render(); 
-        }
+        function saveData() { store.set('my_commitments_v26', JSON.stringify(commitments)); render(); }
 
-        function exportData(isAuto = false) {
-            if (!isAuto) win();
+        function exportData() {
+            win();
             try {
-                const exportObj = {
-                    version: "2.6",
-                    exportDate: new Date().toISOString(),
-                    commitments: commitments,
-                    userProfile: userProfile
-                };
-                const blob = new Blob([JSON.stringify(exportObj, null, 2)], { type: 'application/json' });
+                const blob = new Blob([JSON.stringify(commitments, null, 2)], { type: 'application/json' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
                 a.download = "vault_elite_finance_backup_" + new Date().toISOString().slice(0, 10) + ".json";
                 document.body.appendChild(a); a.click();
                 setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
-                if (isAuto) {
-                    showToast("Auto Monthly Backup downloaded!", "🛡️");
-                } else {
-                    showToast("Backup file downloaded (.json)!", "💾");
-                }
-            } catch (err) { if (!isAuto) showToast("Export failed.", "⚠️"); }
+                showToast("Backup file downloaded (.json)!", "💾");
+            } catch (err) { showToast("Export failed.", "⚠️"); }
         }
 
-        function checkMonthlyAutoBackup() {
-            if (!userProfile.autoBackup) return;
-            const lastBackupMonth = store.get('debt_tracker_last_backup_month');
-            const currentMonth = curMonthKey();
-            if (lastBackupMonth !== currentMonth) {
-                exportData(true);
-                store.set('debt_tracker_last_backup_month', currentMonth);
+        /* Accepts both backup formats:
+           - current: [ {id, name, type, due, initial, remaining, monthly, history} ]
+           - older  : { version, commitments:[ {id:"c_1", dueDate, initialAmount, remainingBalance, monthlyPayment, ...} ], userProfile } */
+        function normalizeImported(data) {
+            const list = Array.isArray(data) ? data : (data && Array.isArray(data.commitments) ? data.commitments : null);
+            if (!list || !list.length) return null;
+            const num = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+            const out = [], used = new Set();
+            for (let i = 0; i < list.length; i++) {
+                const c = list[i];
+                if (!c || typeof c.name !== 'string') return null;
+                const monthly = num(c.monthly ?? c.monthlyPayment);
+                const initial = num(c.initial ?? c.initialAmount);
+                let remaining = num(c.remaining ?? c.remainingBalance);
+                if (monthly === null) return null;
+                if (remaining === null) remaining = initial;
+                if (remaining === null) return null;
+                let id = parseInt(String(c.id).replace(/\D/g, ''));
+                if (isNaN(id) || used.has(id)) id = Math.max(0, ...used) + 1;
+                used.add(id);
+                const dueRaw = c.due ?? c.dueDate;
+                out.push({
+                    id,
+                    name: c.name,
+                    type: c.type === 'utility' ? 'utility' : 'debt',
+                    due: dueRaw === undefined || dueRaw === '' ? '' : (/^\d+$/.test(String(dueRaw)) ? formatOrdinal(dueRaw) : String(dueRaw)),
+                    initial: initial === null ? remaining : initial,
+                    remaining: Math.round(remaining * 100) / 100,
+                    monthly,
+                    history: Array.isArray(c.history) ? c.history.map(h => ({ ...h, amount: Number(h.amount) || 0 })) : []
+                });
             }
+            return out;
         }
 
         function importData(event) {
@@ -850,37 +838,18 @@
             const reader = new FileReader();
             reader.onload = e => {
                 try {
-                    const parsed = JSON.parse(e.target.result);
-                    let rawCommitments = null;
-                    let rawProfile = null;
-
-                    if (Array.isArray(parsed)) {
-                        rawCommitments = parsed;
-                    } else if (parsed && typeof parsed === 'object') {
-                        if (Array.isArray(parsed.commitments)) {
-                            rawCommitments = parsed.commitments;
+                    const imported = JSON.parse(e.target.result);
+                    const list = normalizeImported(imported);
+                    if (list) {
+                        commitments = list;
+                        const p = imported && !Array.isArray(imported) ? imported.userProfile : null;
+                        if (p && typeof p.name === 'string' && p.name.trim()) {
+                            userProfile.name = p.name; userProfile.initials = p.initials || p.name.slice(0, 2).toUpperCase();
+                            if (typeof p.autoReset === 'boolean') userProfile.autoReset = p.autoReset;
+                            store.set('debt_tracker_user', JSON.stringify(userProfile)); updateAvatarUI();
                         }
-                        if (parsed.userProfile && typeof parsed.userProfile === 'object') {
-                            rawProfile = parsed.userProfile;
-                        }
-                    }
-
-                    if (rawCommitments) {
-                        commitments = rawCommitments.map(c => ({
-                            ...c,
-                            history: c.history || []
-                        }));
-                        if (rawProfile) {
-                            userProfile = {
-                                name: rawProfile.name || userProfile.name,
-                                initials: rawProfile.initials || userProfile.initials,
-                                autoReset: typeof rawProfile.autoReset === 'boolean' ? rawProfile.autoReset : userProfile.autoReset,
-                                autoBackup: typeof rawProfile.autoBackup === 'boolean' ? rawProfile.autoBackup : userProfile.autoBackup,
-                                feedback: typeof rawProfile.feedback === 'boolean' ? rawProfile.feedback : userProfile.feedback
-                            };
-                        }
-                        animateCards = true; saveData(); updateAvatarUI(); win();
-                        showToast("Data successfully restored!", "💾");
+                        animateCards = true; saveData(); win();
+                        showToast(`Data restored (${list.length} commitments)!`, "💾");
                     } else showToast("Invalid data structure in file.", "⚠️");
                 } catch (err) { showToast("Could not parse JSON file.", "⚠️"); }
                 event.target.value = '';
@@ -1147,8 +1116,6 @@
 
         /* ---------- Render ---------- */
         function render() {
-            checkMonthlyAutoBackup();
-
             ['due', 'highest-balance', 'lowest-balance'].forEach(m => {
                 const b = document.getElementById(`sort-btn-${m}`);
                 if (!b) return;
@@ -1216,12 +1183,12 @@
 
                 const typeChip = util
                     ? `<span class="chip bg-sky-500/15 text-sky-300 border border-sky-500/30 font-bold">💡 Utility</span>`
-                    : `<span class="chip bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">Due Date: ${esc(c.due)}</span>`;
+                    : `<span class="chip bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">Due ${esc(c.due)}</span>`;
 
                 const payoffRow = util
                     ? `<span class="text-slate-400 font-medium">🔁 Recurring bill</span>
                        <span class="text-sky-300 font-bold">${done ? 'Settled ✓' : 'Resets monthly'}</span>`
-                    : `<span class="text-slate-400 font-medium">✨ Est Payoff</span>
+                    : `<span class="text-slate-400 font-medium">✨ Est. Payoff</span>
                        <span class="text-amber-300 font-bold">${paidFull ? 'Completed ✓' : (stealthMode ? '******' : payoff)}</span>`;
 
                 const payLabel = done ? 'Paid ✓' : (util ? 'Pay Bill' : 'Pay This Month');
@@ -1428,7 +1395,7 @@
             btn.innerText = userProfile.feedback ? "ON" : "OFF";
         }
         const _openProfile = openProfileModal;
-        openProfileModal = function () { _openProfile(); updateFeedbackToggleUI(); updateAutoBackupToggleUI(); };
+        openProfileModal = function () { _openProfile(); updateFeedbackToggleUI(); };
 
         /* cursor glow, card spotlight, scroll progress, FAB auto-hide */
         let lastY = 0;
