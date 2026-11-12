@@ -2,22 +2,12 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
     <meta name="theme-color" content="#050508">
-    <title>Debt Tracker</title>
-    
-    <!-- PWA Meta Tags -->
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="Debt Tracker">
-
-    <link rel="icon" type="image/png" href="https://img.icons8.com/fluency/96/expensive-2.png">
-    <link rel="apple-touch-icon" href="https://img.icons8.com/fluency/96/expensive-2.png">
-    
-    <!-- Manifest fizikal -->
-    <link rel="manifest" href="./manifest.json">
-    
+    <title>Vault — Elite Finance Tracker</title>
+    <link rel="icon" type="image/jpeg" href="https://i.imgur.com/UbVI1ct.jpeg">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/UbVI1ct.jpeg">
+    <link rel="manifest" href="manifest.json">
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Sora:wght@500;600;700;800&display=swap" rel="stylesheet">
     <style>
@@ -27,16 +17,8 @@
             --emerald: #34d399;
             --ruby: #fb7185;
         }
-        * { 
-            -webkit-tap-highlight-color: transparent; 
-            touch-action: manipulation;
-        }
-        body { 
-            font-family: 'Plus Jakarta Sans', sans-serif; 
-            background: #050508; 
-            overflow-x: hidden; 
-            touch-action: manipulation;
-        }
+        * { -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background: #050508; overflow-x: hidden; }
         .num { font-family: 'Sora', sans-serif; font-variant-numeric: tabular-nums; }
 
         /* ---------- Aurora animated background ---------- */
@@ -87,7 +69,7 @@
             border-radius: 27px; position: relative; overflow: hidden;
             background: linear-gradient(160deg, #111827 0%, #070a12 100%);
         }
-        .hero-inner::after {
+        .hero-inner::after { /* light sweep */
             content: ''; position: absolute; inset: 0;
             background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,.06) 50%, transparent 60%);
             transform: translateX(-100%); animation: sweep 5s ease-in-out infinite;
@@ -99,7 +81,7 @@
         /* ---------- Cards ---------- */
         .c-card { position: relative; transition: transform .25s ease, box-shadow .25s ease, border-color .25s; }
         .c-card:hover { transform: translateY(-3px); border-color: rgba(245,196,81,.25); }
-        .c-card::before {
+        .c-card::before { /* left accent */
             content: ''; position: absolute; left: 0; top: 18px; bottom: 18px; width: 3.5px; border-radius: 3px;
             background: var(--accent, var(--gold)); box-shadow: 0 0 14px var(--accent, var(--gold));
         }
@@ -164,7 +146,9 @@
             border-color: rgba(255, 255, 255, 0.18);
             transform: translateY(-1px);
         }
-        .action-btn:active { transform: scale(0.92); }
+        .action-btn:active {
+            transform: scale(0.92);
+        }
         .action-btn-history:hover { background: rgba(245, 196, 81, 0.15); border-color: rgba(245, 196, 81, 0.35); }
         .action-btn-edit:hover { background: rgba(99, 102, 241, 0.18); border-color: rgba(99, 102, 241, 0.35); }
         .action-btn-delete:hover { background: rgba(244, 63, 94, 0.18); border-color: rgba(244, 63, 94, 0.35); color: #f43f5e; }
@@ -172,7 +156,7 @@
         /* ---------- Inputs ---------- */
         .field {
             width: 100%; background: rgba(3,7,18,.7); border: 1px solid rgba(255,255,255,.08);
-            border-radius: 14px; padding: 12px 14px; font-size: 16px; color: #f1f5f9; outline: none;
+            border-radius: 14px; padding: 12px 14px; font-size: 13px; color: #f1f5f9; outline: none;
             transition: border-color .2s, box-shadow .2s;
         }
         .field:focus { border-color: var(--gold); box-shadow: 0 0 0 4px rgba(245,196,81,.12); }
@@ -204,6 +188,42 @@
 
         #confetti { position: fixed; inset: 0; z-index: 80; pointer-events: none; }
         .chip { font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 9999px; letter-spacing: .02em; }
+
+        /* ================= ADDITIONS (improvements) ================= */
+        html { scroll-behavior: smooth; }
+        .hero-inner::after { pointer-events: none; }
+        #scroll-bar { position:fixed; top:0; left:0; height:2px; width:0; z-index:95; background:linear-gradient(90deg,#f5c451,#34d399); box-shadow:0 0 10px rgba(245,196,81,.7); }
+        .dist { display:flex; height:8px; border-radius:9999px; overflow:hidden; gap:2px; background:rgba(255,255,255,.05); }
+        .dist > i { display:block; height:100%; transition:flex-grow .9s cubic-bezier(.22,1,.36,1); min-width:3px; border-radius:2px; }
+        .insight { transition:transform .25s ease, border-color .25s; }
+        .insight:hover { transform:translateY(-2px); border-color:rgba(245,196,81,.25); }
+        .overdue-pulse { animation:overdue 2.2s ease-in-out infinite; }
+        @keyframes overdue { 0%,100%{ box-shadow:0 0 0 0 rgba(251,113,133,0);} 50%{ box-shadow:0 0 0 4px rgba(251,113,133,.12);} }
+        .field.err { border-color:var(--ruby); box-shadow:0 0 0 4px rgba(251,113,133,.14); animation:shake .35s; }
+        @keyframes shake { 25%{transform:translateX(-5px);} 75%{transform:translateX(5px);} }
+        .qchip { font-size:11px; font-weight:700; padding:6px 12px; border-radius:9999px; background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1); color:#e2e8f0; transition:all .18s; }
+        .qchip:hover { background:rgba(245,196,81,.15); border-color:rgba(245,196,81,.4); color:#fde68a; }
+        .qchip:active { transform:scale(.93); }
+        .fchip { font-size:11px; font-weight:700; padding:7px 14px; border-radius:9999px; border:1px solid transparent; color:#94a3b8; transition:all .2s; white-space:nowrap; }
+        .fchip.on { background:linear-gradient(135deg, rgba(251,191,36,.25), rgba(217,119,6,.15)); color:#fcd34d; border-color:rgba(245,158,11,.4); }
+        .fab { transition:transform .3s cubic-bezier(.22,1,.36,1), opacity .3s; }
+        .fab.away { transform:translateY(120px) scale(.8); opacity:0; }
+        .no-scrollbar::-webkit-scrollbar { display:none; }
+
+        /* ================= MOBILE APP POLISH ================= */
+        html { -webkit-text-size-adjust: 100%; }
+        body { overscroll-behavior-y: none; padding-top: calc(1rem + env(safe-area-inset-top)) !important; }
+        body:has(.modal.open) { overflow: hidden; }
+        button, label, .field { touch-action: manipulation; }
+        .field { font-size: 16px !important; }              /* stops iOS auto-zoom when typing */
+        .modal-card { padding-bottom: calc(1.5rem + env(safe-area-inset-bottom)); }
+        #toast { top: calc(1.25rem + env(safe-area-inset-top)) !important; }
+        @media (hover: none) {                              /* no sticky hover effects on touch */
+            .c-card:hover, .insight:hover, .action-btn:hover, .btn-gold:hover, .qchip:hover { transform: none; filter: none; }
+            .action-btn { width: 38px; height: 38px; font-size: 15px; }
+            .qchip { padding: 9px 14px; }
+            .fchip { padding: 9px 14px; }
+        }
         ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.12); border-radius: 4px; }
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
     </style>
@@ -212,6 +232,7 @@
 
     <div class="aurora"><span class="a1"></span><span class="a2"></span><span class="a3"></span></div>
     <div class="grain"></div>
+    <div id="scroll-bar"></div>
     <canvas id="confetti"></canvas>
 
     <!-- Toast -->
@@ -219,6 +240,7 @@
         <div class="glass-luxury border border-amber-500/40 p-4 rounded-2xl flex items-center space-x-3 text-xs text-slate-200">
             <span id="toast-icon" class="text-base">✨</span>
             <span id="toast-message" class="flex-1 font-semibold">Notification</span>
+            <button id="toast-action" class="hidden text-[11px] font-extrabold text-amber-400 px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/30 active:scale-95"></button>
         </div>
     </div>
 
@@ -234,7 +256,7 @@
                 <button onclick="resetPaidItemsOnly()" title="Reset paid status for new month" class="btn-ghost ripple-host px-3 py-2 rounded-xl text-[10px] text-amber-400 font-bold flex items-center space-x-1.5">
                     <span>Monthly Reset</span>
                 </button>
-                <button onclick="openProfileModal()" id="user-avatar-btn" title="Profile & settings" class="w-10 h-10 rounded-2xl btn-gold flex items-center justify-center text-xs">US</button>
+                <button onclick="openProfileModal()" id="user-avatar-btn" title="Profile & settings" class="w-10 h-10 rounded-2xl btn-gold flex items-center justify-center text-xs">MS</button>
             </div>
         </header>
 
@@ -275,6 +297,12 @@
                     </div>
                 </div>
 
+                <!-- Distribution -->
+                <div class="relative z-10 space-y-2" id="dist-wrap">
+                    <div class="dist" id="dist-bar"></div>
+                    <div class="flex flex-wrap gap-x-3 gap-y-1" id="dist-legend"></div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-3 pt-4 border-t border-white/5 relative z-10">
                     <div>
                         <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">Original Amount</span>
@@ -285,6 +313,25 @@
                         <span id="total-monthly" class="num font-bold text-amber-400 text-sm">RM 0.00</span>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Insights -->
+        <div class="grid grid-cols-3 gap-2.5" id="insights">
+            <div class="insight glass-luxury rounded-2xl p-3">
+                <span class="text-[9px] uppercase font-bold tracking-wider text-slate-400 block">✅ Paid</span>
+                <span id="ins-paid" class="num font-extrabold text-emerald-400 text-[13px] block mt-1">RM 0.00</span>
+                <span class="text-[9px] text-slate-500" id="ins-month">this month</span>
+            </div>
+            <div class="insight glass-luxury rounded-2xl p-3">
+                <span class="text-[9px] uppercase font-bold tracking-wider text-slate-400 block">⏰ Next due</span>
+                <span id="ins-next" class="font-extrabold text-amber-300 text-[13px] block mt-1 truncate">—</span>
+                <span class="text-[9px] text-slate-500" id="ins-next-sub">nothing pending</span>
+            </div>
+            <div class="insight glass-luxury rounded-2xl p-3">
+                <span class="text-[9px] uppercase font-bold tracking-wider text-slate-400 block">🚨 Overdue</span>
+                <span id="ins-over" class="num font-extrabold text-slate-200 text-[13px] block mt-1">0</span>
+                <span class="text-[9px] text-slate-500" id="ins-over-sub">all good</span>
             </div>
         </div>
 
@@ -308,6 +355,17 @@
                 <h3 class="text-[11px] font-bold text-slate-400 uppercase tracking-[.2em]">Active Commitments</h3>
                 <button onclick="toggleShowCompleted()" id="toggle-completed-btn" class="text-[11px] text-amber-400 hover:underline font-bold">Show completed</button>
             </div>
+            <div class="relative">
+                <span class="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm opacity-60">🔍</span>
+                <input type="search" id="search-input" placeholder="Search commitments…" class="field !pl-10" autocomplete="off">
+            </div>
+
+            <div class="glass-luxury p-1 rounded-2xl flex gap-1 overflow-x-auto no-scrollbar" id="filter-row">
+                <button class="fchip flex-1" data-f="all" onclick="setFilter('all')">All <span id="cnt-all" class="opacity-70"></span></button>
+                <button class="fchip flex-1" data-f="debt" onclick="setFilter('debt')">💳 Debt <span id="cnt-debt" class="opacity-70"></span></button>
+                <button class="fchip flex-1" data-f="utility" onclick="setFilter('utility')">💡 Utilities <span id="cnt-utility" class="opacity-70"></span></button>
+            </div>
+
             <div class="glass-luxury p-1 rounded-2xl grid grid-cols-3 gap-1 text-[11px]">
                 <button onclick="setSortMode('due')" id="sort-btn-due" class="py-2 rounded-xl font-semibold transition">📅 Due Date</button>
                 <button onclick="setSortMode('highest-balance')" id="sort-btn-highest-balance" class="py-2 rounded-xl font-semibold transition">💰 Highest</button>
@@ -320,7 +378,7 @@
     </div>
 
     <!-- FAB -->
-    <button onclick="openAddModal()" class="fab btn-gold" title="Add new commitment">+</button>
+    <button onclick="openAddModal()" id="fab" class="fab btn-gold" title="Add new commitment (N)">+</button>
 
     <!-- Add Modal -->
     <div id="add-modal" class="modal sheet">
@@ -340,13 +398,14 @@
 
             <div>
                 <label class="lbl">Commitment Name</label>
-                <input type="text" id="new-name" placeholder="e.g. Car Loan, Home Loan, Personal Loan" class="field">
+                <input type="text" id="new-name" placeholder="e.g. Car Loan" class="field">
             </div>
             <div class="grid grid-cols-3 gap-2" id="new-grid">
-                <div><label class="lbl">Due Date</label><input type="number" id="new-due" placeholder="5" min="1" max="31" class="field"></div>
+                <div><label class="lbl">Due Day</label><input type="number" id="new-due" placeholder="5" min="1" max="31" class="field"></div>
                 <div id="new-initial-wrap"><label class="lbl">Original</label><input type="number" id="new-initial" placeholder="RM" step="0.01" class="field"></div>
                 <div><label class="lbl">Monthly</label><input type="number" id="new-monthly" placeholder="RM" step="0.01" class="field"></div>
             </div>
+            <p id="new-preview" class="text-[11px] text-slate-400 bg-black/25 border border-white/5 rounded-xl px-3 py-2 hidden"></p>
             <div class="flex space-x-2 pt-1">
                 <button onclick="closeAddModal()" class="btn-ghost w-1/3 py-3 rounded-xl text-xs text-slate-300 font-semibold">Cancel</button>
                 <button onclick="addNewCommitment()" class="btn-gold ripple-host w-2/3 py-3 rounded-xl text-xs">Save to Portfolio</button>
@@ -403,8 +462,10 @@
             <input type="hidden" id="pay-id">
             <div>
                 <label class="lbl">Payment Amount (RM)</label>
-                <input type="number" id="pay-amount-input" step="0.01" class="field num text-lg font-bold" style="font-size:20px">
+                <input type="number" id="pay-amount-input" step="0.01" class="field num text-lg font-bold" style="font-size:20px" oninput="updatePayPreview()">
+                <div class="flex flex-wrap gap-2 mt-2.5" id="pay-quick"></div>
                 <p id="pay-hint" class="text-[10px] text-slate-500 mt-1.5 hidden">Utilities are marked as settled once paid.</p>
+                <p id="pay-preview" class="text-[11px] text-slate-300 mt-3 bg-black/25 border border-white/5 rounded-xl px-3 py-2"></p>
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closePayModal()" class="btn-ghost w-1/2 py-3 rounded-xl text-xs text-slate-300 font-semibold">Cancel</button>
@@ -418,10 +479,14 @@
         <div class="modal-card glass-luxury p-6 rounded-3xl w-full max-w-sm space-y-4 border border-amber-500/30">
             <h3 class="text-sm font-extrabold uppercase tracking-widest gold-text">User Profile & Settings</h3>
             <div class="space-y-3">
-                <div><label class="lbl">Your Name / Initials</label><input type="text" id="profile-name-input" placeholder="e.g. ALI" class="field"></div>
+                <div><label class="lbl">Your Name / Initials</label><input type="text" id="profile-name-input" placeholder="e.g. Mohd Saifullah" class="field"></div>
                 <div class="pt-3 border-t border-white/5 flex items-center justify-between">
                     <span class="text-xs font-bold text-slate-200">Automatic Monthly Reset</span>
                     <button onclick="toggleAutoResetSetting()" id="auto-reset-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition">ON</button>
+                </div>
+                <div class="pt-3 border-t border-white/5 flex items-center justify-between">
+                    <span class="text-xs font-bold text-slate-200">Sound & Vibration</span>
+                    <button onclick="toggleFeedbackSetting()" id="feedback-toggle-btn" class="px-4 py-1.5 rounded-xl text-xs font-extrabold transition">ON</button>
                 </div>
             </div>
             <div class="flex space-x-2 pt-3">
@@ -436,70 +501,59 @@
         <div class="modal-card glass-luxury p-6 rounded-t-[32px] rounded-b-3xl w-full max-w-md space-y-4 border border-amber-500/30">
             <div class="w-10 h-1 rounded-full bg-white/15 mx-auto -mt-2 mb-1"></div>
             <h3 id="history-title" class="text-sm font-extrabold uppercase tracking-widest gold-text truncate">Payment History</h3>
+            <div id="history-total" class="text-[11px] text-slate-400"></div>
             <div id="history-list" class="space-y-1.5 max-h-72 overflow-y-auto"></div>
             <button onclick="closeHistoryModal()" class="btn-ghost w-full py-3 rounded-2xl text-xs text-slate-300 font-semibold">Close</button>
         </div>
     </div>
 
     <script>
-        // Pendaftaran fizikal Service Worker (sw.js)
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('./sw.js').catch(() => {});
-            });
-        }
+        /* Safe storage: falls back to memory if the browser blocks localStorage */
+        const $ = id => document.getElementById(id);
+        const store = (() => {
+            const mem = {}; let ok = true;
+            try { localStorage.setItem('__t', '1'); localStorage.removeItem('__t'); } catch (e) { ok = false; }
+            return {
+                ok,
+                get: k => { try { if (ok) return localStorage.getItem(k); } catch (e) {} return k in mem ? mem[k] : null; },
+                set: (k, v) => { try { if (ok) { localStorage.setItem(k, v); return; } } catch (e) {} mem[k] = String(v); }
+            };
+        })();
 
-        // Block Pinch-to-Zoom Gesture (Safari/Chrome Mobile)
-        document.addEventListener('gesturestart', function (e) { e.preventDefault(); });
-        document.addEventListener('gesturechange', function (e) { e.preventDefault(); });
-        document.addEventListener('gestureend', function (e) { e.preventDefault(); });
+        const initialCommitments = [
+            { id: 1, name: "Spay Later", type: "debt", due: "10th", initial: 10000.00, remaining: 10000.00, monthly: 2100.00, history: [] },
+            { id: 2, name: "AKPK", type: "debt", due: "5th", initial: 40945.76, remaining: 40945.76, monthly: 700.00, history: [] }
+        ];
 
-        const initialCommitments = [];
-
-        let commitments = JSON.parse(localStorage.getItem('my_commitments_v26')) || initialCommitments;
+        let commitments = (() => { try { return JSON.parse(store.get('my_commitments_v26')) || initialCommitments; } catch (e) { return initialCommitments; } })();
         let showCompleted = false;
-        let currentSortMode = localStorage.getItem('debt_tracker_sort') || 'due';
+        let currentSortMode = store.get('debt_tracker_sort') || 'due';
         let stealthMode = false;
         let animateCards = true;
         let historyId = null;
-        
-        let userProfile = JSON.parse(localStorage.getItem('debt_tracker_user')) || { name: "User", initials: "US", autoReset: true };
+        let userProfile = (() => { try { return JSON.parse(store.get('debt_tracker_user')); } catch (e) { return null; } })() || { name: "Mohd Saifullah", initials: "MS", autoReset: true };
+        if (typeof userProfile.feedback === 'undefined') userProfile.feedback = true;
+        let filterMode = 'all';
+        let searchQuery = '';
+        const PALETTE = ['#f5c451', '#34d399', '#818cf8', '#fb7185', '#38bdf8', '#f472b6', '#a3e635'];
 
         const CIRC = 213.63;
         const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-        
-        // Fungsi pembantu ordinal suffix (1st, 2nd, 3rd, 4th...)
-        function getOrdinalSuffix(n) {
-            const s = ["th", "st", "nd", "rd"];
-            const v = n % 100;
-            return n + (s[(v - 20) % 10] || s[v] || s[0]);
-        }
-
-        // Fungsi kiraan Estimated Payoff
-        function getEstPayoff(remaining, monthly) {
-            if (!monthly || monthly <= 0 || !remaining || remaining <= 0) return 'N/A';
-            const months = Math.ceil(remaining / monthly);
-            const d = new Date();
-            d.setMonth(d.getMonth() + months);
-            return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
-        }
-
-        // Stealth mode menggunakan simbol asterisk 6 cabang (✱✱✱✱✱✱)
-        const rm = n => stealthMode ? '✱✱✱✱✱✱' : 'RM ' + Number(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-        
+        const rm = n => 'RM ' + Number(n).toLocaleString('en-MY', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
         const curMonthKey = () => new Date().toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
         const isUtility = c => c.type === 'utility';
 
         /* ---------- Haptic & sound ---------- */
         function triggerHaptic(type = 'light') {
-            if (!navigator.vibrate) return;
+            if (!userProfile.feedback || !navigator.vibrate) return;
             if (type === 'light') navigator.vibrate(15);
             else if (type === 'success') navigator.vibrate([30, 50, 30]);
             else navigator.vibrate(50);
         }
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        let audioCtx; try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
         function playSound(tone = 'click') {
             try {
+                if (!userProfile.feedback) return;
                 if (audioCtx.state === 'suspended') audioCtx.resume();
                 const osc = audioCtx.createOscillator(), gain = audioCtx.createGain();
                 osc.connect(gain); gain.connect(audioCtx.destination);
@@ -542,544 +596,800 @@
             if (e.pointerType === 'touch') return;
             const r = hero.getBoundingClientRect();
             const x = (e.clientX - r.left) / r.width - .5, y = (e.clientY - r.top) / r.height - .5;
-            hero.style.transform = `perspective(800px) rotateY(${x * 6}deg) rotateX(${ -y * 6}deg) scale3d(1.01,1.01,1.01)`;
+            hero.style.transform = `perspective(900px) rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
         });
-        hero.addEventListener('pointerleave', () => {
-            hero.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg) scale3d(1,1,1)';
-            hero.style.transition = 'transform .4s ease-out';
-            setTimeout(() => hero.style.transition = '', 400);
-        });
+        hero.addEventListener('pointerleave', () => hero.style.transform = '');
 
-        /* ---------- Toast ---------- */
-        function showToast(msg, icon = '✨') {
-            const t = document.getElementById('toast');
-            document.getElementById('toast-message').textContent = msg;
-            document.getElementById('toast-icon').textContent = icon;
-            t.classList.remove('opacity-0', '-translate-y-6', 'pointer-events-none');
-            t.classList.add('opacity-100', 'translate-y-0');
-            setTimeout(() => {
-                t.classList.remove('opacity-100', 'translate-y-0');
-                t.classList.add('opacity-0', '-translate-y-6', 'pointer-events-none');
-            }, 3200);
+        /* ---------- Count-up numbers ---------- */
+        function countTo(el, to, format) {
+            const from = parseFloat(el.dataset.v || 0);
+            el.dataset.v = to;
+            if (from === to) { el.innerText = format(to); return; }
+            const start = performance.now(), dur = 1100;
+            const ease = t => 1 - Math.pow(1 - t, 4);
+            (function step(now) {
+                if (stealthMode) return;   // hidden balance: stop any running count-up so it can't reveal numbers
+                const t = Math.min(1, (now - start) / dur);
+                el.innerText = format(from + (to - from) * ease(t));
+                if (t < 1) requestAnimationFrame(step);
+            })(start);
+        }
+        function setMoney(id, val) {
+            const el = document.getElementById(id);
+            if (stealthMode) { el.innerText = 'RM ******'; el.dataset.v = val; return; }
+            countTo(el, val, rm);
         }
 
         /* ---------- Confetti ---------- */
-        const confettiCanvas = document.getElementById('confetti');
-        const ctx = confettiCanvas.getContext('2d');
-        let particles = [];
-        function fireConfetti() {
-            confettiCanvas.width = window.innerWidth;
-            confettiCanvas.height = window.innerHeight;
-            particles = Array.from({ length: 90 }, () => ({
-                x: window.innerWidth / 2, y: window.innerHeight / 2,
-                vx: (Math.random() - .5) * 14, vy: (Math.random() - .7) * 14 - 4,
-                r: Math.random() * 6 + 3, color: ['#f5c451', '#34d399', '#60a5fa', '#fb7185', '#ffffff'][Math.floor(Math.random() * 5)],
-                alpha: 1, decay: Math.random() * .015 + .008
-            }));
-            requestAnimationFrame(updateConfetti);
-        }
-        function updateConfetti() {
-            ctx.clearRect(0, 0, confettiCanvas.width, confettiCanvas.height);
-            particles.forEach(p => {
-                p.x += p.vx; p.y += p.vy; p.vy += 0.4; p.alpha -= p.decay;
-                ctx.save(); ctx.globalAlpha = Math.max(0, p.alpha);
-                ctx.fillStyle = p.color; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2); ctx.fill();
-                ctx.restore();
+        const cv = document.getElementById('confetti'), cx = cv.getContext('2d');
+        let parts = [], confettiOn = false;
+        function sizeCv() { cv.width = innerWidth; cv.height = innerHeight; }
+        addEventListener('resize', sizeCv); sizeCv();
+        function confetti(big = false) {
+            const n = big ? 160 : 70, colors = ['#f5c451', '#fff1c1', '#34d399', '#6ee7b7', '#d4a017', '#fff'];
+            for (let i = 0; i < n; i++) parts.push({
+                x: innerWidth / 2, y: innerHeight * .55,
+                vx: (Math.random() - .5) * 15, vy: -Math.random() * 15 - 4,
+                s: Math.random() * 7 + 4, c: colors[(Math.random() * colors.length) | 0],
+                r: Math.random() * 6, vr: (Math.random() - .5) * .4, life: 1
             });
-            particles = particles.filter(p => p.alpha > 0);
-            if (particles.length > 0) requestAnimationFrame(updateConfetti);
+            if (!confettiOn) { confettiOn = true; requestAnimationFrame(tick); }
+        }
+        function tick() {
+            cx.clearRect(0, 0, cv.width, cv.height);
+            parts.forEach(p => {
+                p.vy += .38; p.x += p.vx; p.y += p.vy; p.vx *= .99; p.r += p.vr; p.life -= .011;
+                cx.save(); cx.globalAlpha = Math.max(0, p.life); cx.translate(p.x, p.y); cx.rotate(p.r);
+                cx.fillStyle = p.c; cx.fillRect(-p.s / 2, -p.s / 3, p.s, p.s * .6); cx.restore();
+            });
+            parts = parts.filter(p => p.life > 0 && p.y < cv.height + 40);
+            if (parts.length) requestAnimationFrame(tick); else { confettiOn = false; cx.clearRect(0, 0, cv.width, cv.height); }
         }
 
-        /* ---------- Core logic & persistence ---------- */
-        function save() {
-            localStorage.setItem('my_commitments_v26', JSON.stringify(commitments));
-            localStorage.setItem('debt_tracker_user', JSON.stringify(userProfile));
-            localStorage.setItem('debt_tracker_sort', currentSortMode);
-            render();
+        /* ---------- Modal helpers ---------- */
+        const openM = id => document.getElementById(id).classList.add('open');
+        const closeM = id => document.getElementById(id).classList.remove('open');
+        document.querySelectorAll('.modal').forEach(m => m.addEventListener('pointerdown', e => {
+            if (e.target === m && m.id !== 'confirm-modal') m.classList.remove('open');
+        }));
+
+        function openAddModal() {
+            tap();
+            setFormType('new', 'debt');
+            openM('add-modal');
+            setTimeout(() => document.getElementById('new-name').focus(), 350);
+        }
+        function closeAddModal() { tap(); closeM('add-modal'); }
+
+        /* ---------- Type selector (Debt / Utilities) ---------- */
+        function setFormType(prefix, type) {
+            if (document.getElementById(prefix + '-type').value !== type || true) {
+                document.getElementById(prefix + '-type').value = type;
+            }
+            const on = "py-2 rounded-xl text-xs transition font-extrabold bg-gradient-to-br from-amber-400/25 to-amber-600/15 text-amber-300 border border-amber-500/40";
+            const off = "py-2 rounded-xl text-xs transition font-semibold text-slate-400 border border-transparent";
+            document.getElementById(prefix + '-type-debt').className = type === 'debt' ? on : off;
+            document.getElementById(prefix + '-type-utility').className = type === 'utility' ? on : off;
+            document.getElementById(prefix + '-initial-wrap').classList.toggle('hidden', type === 'utility');
+            document.getElementById(prefix + '-type-hint').innerText = type === 'utility'
+                ? 'Monthly bill (water, electricity, etc). Once paid, it is marked settled until the next monthly reset.'
+                : 'Loan or instalment with a total balance that reduces with each payment.';
+            if (prefix === 'new') {
+                document.getElementById('new-grid').className = type === 'utility' ? 'grid grid-cols-2 gap-2' : 'grid grid-cols-3 gap-2';
+                document.getElementById('new-name').placeholder = type === 'utility' ? 'e.g. Electricity Bill' : 'e.g. Car Loan';
+                document.getElementById('new-monthly').placeholder = type === 'utility' ? 'RM / bulan' : 'RM';
+                updateNewPreview();
+            }
         }
 
-        function toggleStealthMode() {
-            tap();
-            stealthMode = !stealthMode;
-            document.getElementById('eye-icon-open').classList.toggle('hidden', stealthMode);
-            document.getElementById('eye-icon-closed').classList.toggle('hidden', !stealthMode);
-            document.getElementById('stealth-badge-text').textContent = stealthMode ? 'Show balance' : 'Hide balance';
-            render();
-        }
-
-        function toggleShowCompleted() {
-            tap();
-            showCompleted = !showCompleted;
-            document.getElementById('toggle-completed-btn').textContent = showCompleted ? 'Hide completed' : 'Show completed';
-            render();
-        }
-
-        function setSortMode(mode) {
-            tap();
-            currentSortMode = mode;
-            save();
-        }
-
-        /* ---------- Profile Modal ---------- */
-        function openProfileModal() {
-            tap();
-            document.getElementById('profile-name-input').value = userProfile.name === "User" ? "" : userProfile.name;
-            updateAutoResetToggleUI();
-            document.getElementById('profile-modal').classList.add('open');
-        }
-        function closeProfileModal() { tap(); document.getElementById('profile-modal').classList.remove('open'); }
-        function toggleAutoResetSetting() {
-            tap();
-            userProfile.autoReset = !userProfile.autoReset;
-            updateAutoResetToggleUI();
+        /* ---------- Profile ---------- */
+        function updateAvatarUI() {
+            document.getElementById('user-avatar-btn').innerText = userProfile.initials;
+            const h = new Date().getHours();
+            const g = h < 5 ? 'Good night' : h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+            document.getElementById('greeting').innerText = `${g}, ${(userProfile.name || '').split(' ')[0]}`;
         }
         function updateAutoResetToggleUI() {
             const btn = document.getElementById('auto-reset-toggle-btn');
-            btn.textContent = userProfile.autoReset ? 'ON' : 'OFF';
-            btn.className = userProfile.autoReset ? 'px-4 py-1.5 rounded-xl text-xs font-extrabold btn-gold' : 'px-4 py-1.5 rounded-xl text-xs font-extrabold btn-ghost text-slate-400';
+            if (userProfile.autoReset) {
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40";
+                btn.innerText = "ON";
+            } else {
+                btn.className = "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-slate-800 text-slate-500 border border-slate-700";
+                btn.innerText = "OFF";
+            }
         }
+        function toggleAutoResetSetting() { tap(); userProfile.autoReset = !userProfile.autoReset; updateAutoResetToggleUI(); }
+        function openProfileModal() {
+            tap();
+            document.getElementById('profile-name-input').value = userProfile.name;
+            updateAutoResetToggleUI();
+            openM('profile-modal');
+        }
+        function closeProfileModal() { tap(); closeM('profile-modal'); }
         function saveProfileName() {
-            tap();
-            const val = document.getElementById('profile-name-input').value.trim();
-            if (val) {
-                userProfile.name = val;
-                const parts = val.split(' ');
-                userProfile.initials = parts.length >= 2 ? (parts[0][0] + parts[1][0]).toUpperCase() : val.slice(0, 2).toUpperCase();
-            } else {
-                userProfile.name = "User";
-                userProfile.initials = "US";
-            }
-            save();
-            closeProfileModal();
-            showToast('Profile updated!', '👤');
-        }
-
-        /* ---------- Form type selector helpers ---------- */
-        function setFormType(prefix, type) {
-            tap();
-            document.getElementById(`${prefix}-type`).value = type;
-            const isU = type === 'utility';
-            document.getElementById(`${prefix}-type-debt`).className = isU ? 'py-2 rounded-xl text-xs transition text-slate-400' : 'py-2 rounded-xl text-xs transition btn-gold';
-            document.getElementById(`${prefix}-type-utility`).className = isU ? 'py-2 rounded-xl text-xs transition btn-gold' : 'py-2 rounded-xl text-xs transition text-slate-400';
-            
-            const hint = document.getElementById(`${prefix}-type-hint`);
-            const initialWrap = document.getElementById(`${prefix}-initial-wrap`);
-            const nameInput = document.getElementById(`${prefix}-name`);
-
-            if (isU) {
-                hint.textContent = '💡 Utilities reset monthly and are cleared with a fixed monthly payment without principal tracking.';
-                initialWrap.style.display = 'none';
-                if (nameInput) nameInput.placeholder = 'e.g. TNB Electricity, Unifi, Water Bill';
-            } else {
-                hint.textContent = '💳 Debts have an original principal amount that decreases as you make payments over time.';
-                initialWrap.style.display = 'block';
-                if (nameInput) nameInput.placeholder = 'e.g. Car Loan, Home Loan, Personal Loan';
-            }
-        }
-
-        /* ---------- Add Modal ---------- */
-        function openAddModal() {
-            tap();
-            document.getElementById('new-name').value = '';
-            document.getElementById('new-due').value = '5';
-            document.getElementById('new-initial').value = '';
-            document.getElementById('new-monthly').value = '';
-            setFormType('new', 'debt');
-            document.getElementById('add-modal').classList.add('open');
-        }
-        function closeAddModal() { tap(); document.getElementById('add-modal').classList.remove('open'); }
-
-        function addNewCommitment() {
-            tap();
-            const type = document.getElementById('new-type').value;
-            const name = document.getElementById('new-name').value.trim();
-            const due = parseInt(document.getElementById('new-due').value);
-            const monthly = parseFloat(document.getElementById('new-monthly').value);
-            const initial = type === 'debt' ? parseFloat(document.getElementById('new-initial').value) : monthly;
-
-            if (!name) { showToast('Please enter a commitment name', '⚠️'); return; }
-            if (isNaN(due) || due < 1 || due > 31) { showToast('Please enter a valid due date (1-31)', '⚠️'); return; }
-            if (isNaN(monthly) || monthly <= 0) { showToast('Please enter a valid monthly amount', '⚠️'); return; }
-            if (type === 'debt' && (isNaN(initial) || initial <= 0)) { showToast('Please enter a valid original amount', '⚠️'); return; }
-
-            const newItem = {
-                id: 'c_' + Date.now(),
-                type: type,
-                name: name,
-                dueDate: due,
-                initialAmount: initial,
-                remainingBalance: type === 'debt' ? initial : monthly,
-                monthlyPayment: monthly,
-                lastPaidMonth: '',
-                history: []
-            };
-
-            commitments.push(newItem);
-            save();
-            closeAddModal();
             win();
-            showToast(`Added "${name}" successfully!`, '🎉');
+            const fullName = document.getElementById('profile-name-input').value.trim();
+            if (!fullName) return;
+            const words = fullName.split(' ');
+            userProfile.name = fullName;
+            userProfile.initials = words.length > 1 ? (words[0][0] + words[1][0]).toUpperCase() : fullName.slice(0, 2).toUpperCase();
+            store.set('debt_tracker_user', JSON.stringify(userProfile));
+            updateAvatarUI(); closeM('profile-modal');
+            showToast('Profile & settings updated successfully', '👤');
         }
 
-        /* ---------- Edit Modal ---------- */
-        function openEditModal(id) {
+        /* ---------- Stealth ---------- */
+        function toggleStealthMode() {
             tap();
-            const c = commitments.find(x => x.id === id);
-            if (!c) return;
-            document.getElementById('edit-id').value = c.id;
-            document.getElementById('edit-name').value = c.name;
-            document.getElementById('edit-due').value = c.dueDate;
-            document.getElementById('edit-initial').value = c.initialAmount;
-            document.getElementById('edit-monthly').value = c.monthlyPayment;
-            setFormType('edit', c.type || 'debt');
-            document.getElementById('edit-modal').classList.add('open');
+            stealthMode = !stealthMode;
+            const badge = document.getElementById('stealth-badge');
+            const txt = document.getElementById('stealth-badge-text');
+            document.getElementById('eye-icon-open').classList.toggle('hidden', stealthMode);
+            document.getElementById('eye-icon-closed').classList.toggle('hidden', !stealthMode);
+            badge.className = stealthMode
+                ? "text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/40 px-2.5 py-1 rounded-full font-bold transition active:scale-95 flex items-center space-x-1.5"
+                : "text-[10px] bg-slate-800/80 text-slate-300 border border-slate-700 px-2.5 py-1 rounded-full font-bold transition active:scale-95 flex items-center space-x-1.5";
+            txt.innerText = stealthMode ? 'Show balance' : 'Hide balance';
+            hideToast();
+            animateCards = false;
+            render();
+            if (historyId !== null && document.getElementById('history-modal').classList.contains('open')) renderHistoryModal(historyId);
         }
-        function closeEditModal() { tap(); document.getElementById('edit-modal').classList.remove('open'); }
 
-        function saveEditCommitment() {
-            tap();
-            const id = document.getElementById('edit-id').value;
-            const c = commitments.find(x => x.id === id);
-            if (!c) return;
+        function setSortMode(mode) {
+            tap(); currentSortMode = mode;
+            store.set('debt_tracker_sort', mode);
+            animateCards = true; render();
+        }
 
-            const type = document.getElementById('edit-type').value;
-            const name = document.getElementById('edit-name').value.trim();
-            const due = parseInt(document.getElementById('edit-due').value);
-            const monthly = parseFloat(document.getElementById('edit-monthly').value);
-            const initial = type === 'debt' ? parseFloat(document.getElementById('edit-initial').value) : monthly;
-
-            if (!name) { showToast('Please enter a name', '⚠️'); return; }
-
-            c.type = type;
-            c.name = name;
-            c.dueDate = due;
-            c.monthlyPayment = monthly;
-            if (type === 'debt') {
-                c.initialAmount = initial;
-                if (c.remainingBalance > initial) c.remainingBalance = initial;
+        function showToast(message, icon = "✨", action = null) {
+            const toast = document.getElementById('toast'), btn = document.getElementById('toast-action');
+            document.getElementById('toast-message').innerText = message;
+            document.getElementById('toast-icon').innerText = icon;
+            if (action) {
+                btn.innerText = action.label;
+                btn.classList.remove('hidden');
+                btn.onclick = () => { action.fn(); hideToast(); };
+                toast.style.pointerEvents = 'auto';
             } else {
-                c.initialAmount = monthly;
-                c.remainingBalance = monthly;
+                btn.classList.add('hidden'); btn.onclick = null;
+                toast.style.pointerEvents = 'none';
             }
-
-            save();
-            closeEditModal();
-            showToast('Changes saved successfully', '💾');
+            toast.classList.remove('opacity-0', '-translate-y-6');
+            toast.classList.add('opacity-100', 'translate-y-0');
+            clearTimeout(showToast.t);
+            showToast.t = setTimeout(hideToast, action ? 6000 : 3000);
+        }
+        function hideToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.remove('opacity-100', 'translate-y-0');
+            toast.classList.add('opacity-0', '-translate-y-6');
+            toast.style.pointerEvents = 'none';
         }
 
-        /* ---------- Payment Modal ---------- */
-        function openPayModal(id) {
+        function showCustomConfirm(message, onConfirm) {
             tap();
-            const c = commitments.find(x => x.id === id);
-            if (!c) return;
-            document.getElementById('pay-id').value = c.id;
-            const isU = isUtility(c);
-            document.getElementById('pay-modal-title').textContent = isU ? `Settle Utility: ${c.name}` : `Make Payment: ${c.name}`;
-            document.getElementById('pay-amount-input').value = isU ? c.monthlyPayment : Math.min(c.remainingBalance, c.monthlyPayment);
-            document.getElementById('pay-hint').classList.toggle('hidden', !isU);
-            document.getElementById('pay-modal').classList.add('open');
-        }
-        function closePayModal() { tap(); document.getElementById('pay-modal').classList.remove('open'); }
-
-        function confirmPayment() {
-            tap();
-            const id = document.getElementById('pay-id').value;
-            const c = commitments.find(x => x.id === id);
-            if (!c) return;
-
-            const amt = parseFloat(document.getElementById('pay-amount-input').value);
-            if (isNaN(amt) || amt <= 0) { showToast('Please enter a valid payment amount', '⚠️'); return; }
-
-            const mKey = curMonthKey();
-            c.lastPaidMonth = mKey;
-
-            if (!c.history) c.history = [];
-            c.history.unshift({
-                date: new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }),
-                monthKey: mKey,
-                amount: amt
-            });
-
-            if (isUtility(c)) {
-                c.remainingBalance = 0;
-            } else {
-                c.remainingBalance = Math.max(0, c.remainingBalance - amt);
-            }
-
-            save();
-            closePayModal();
-
-            if (c.remainingBalance === 0) {
-                win();
-                fireConfetti();
-                showToast(`Congratulations! "${c.name}" is fully cleared!`, '🏆');
-            } else {
-                win();
-                showToast(`Payment of ${rm(amt)} recorded!`, '💰');
-            }
-        }
-
-        /* ---------- History Modal ---------- */
-        function openHistoryModal(id) {
-            tap();
-            const c = commitments.find(x => x.id === id);
-            if (!c) return;
-            document.getElementById('history-title').textContent = `History: ${c.name}`;
-            const listEl = document.getElementById('history-list');
-            
-            if (!c.history || c.history.length === 0) {
-                listEl.innerHTML = `<p class="text-xs text-slate-500 text-center py-6">No payment history recorded yet.</p>`;
-            } else {
-                listEl.innerHTML = c.history.map(h => `
-                    <div class="glass-luxury p-3 rounded-xl flex justify-between items-center text-xs">
-                        <div>
-                            <span class="font-bold text-slate-200 block">${esc(h.date)}</span>
-                            <span class="text-[10px] text-amber-400 font-semibold">${esc(h.monthKey)}</span>
-                        </div>
-                        <span class="num font-bold text-emerald-400 text-sm">+${rm(h.amount)}</span>
-                    </div>
-                `).join('');
-            }
-            document.getElementById('history-modal').classList.add('open');
-        }
-        function closeHistoryModal() { tap(); document.getElementById('history-modal').classList.remove('open'); }
-
-        /* ---------- Confirmation Modal Wrapper ---------- */
-        function showConfirm(text, onOk) {
-            tap();
-            document.getElementById('confirm-text').textContent = text;
             const okBtn = document.getElementById('confirm-ok-btn');
             const cancelBtn = document.getElementById('confirm-cancel-btn');
-            const modal = document.getElementById('confirm-modal');
-
-            const cleanup = () => {
-                modal.classList.remove('open');
-                okBtn.onclick = null;
-                cancelBtn.onclick = null;
-            };
-
-            okBtn.onclick = () => { cleanup(); onOk(); };
-            cancelBtn.onclick = () => { cleanup(); tap(); };
-            modal.classList.add('open');
+            document.getElementById('confirm-text').innerText = message;
+            openM('confirm-modal');
+            const newOk = okBtn.cloneNode(true), newCancel = cancelBtn.cloneNode(true);
+            okBtn.replaceWith(newOk); cancelBtn.replaceWith(newCancel);
+            newOk.addEventListener('click', () => { win(); closeM('confirm-modal'); onConfirm(); });
+            newCancel.addEventListener('click', () => { tap(); closeM('confirm-modal'); });
         }
 
-        function deleteCommitment(id) {
-            const c = commitments.find(x => x.id === id);
-            if (!c) return;
-            showConfirm(`Are you sure you want to delete "${c.name}" from your portfolio?`, () => {
-                commitments = commitments.filter(x => x.id !== id);
-                save();
-                showToast('Commitment deleted', '🗑️');
-            });
-        }
+        /* ---------- Data ---------- */
+        function saveData() { store.set('my_commitments_v26', JSON.stringify(commitments)); render(); }
 
-        function resetPaidItemsOnly() {
-            showConfirm('Reset payment status for the new month across all active commitments?', () => {
-                const mKey = curMonthKey();
-                commitments.forEach(c => {
-                    if (isUtility(c) && c.lastPaidMonth === mKey) {
-                        c.remainingBalance = c.monthlyPayment;
-                        c.lastPaidMonth = '';
-                    }
-                });
-                save();
-                win();
-                showToast('Monthly reset complete for utilities!', '🔄');
-            });
-        }
-
-        /* ---------- Export & Import Data ---------- */
         function exportData() {
-            tap();
-            const dateStr = new Date().toLocaleDateString('en-CA');
-            const exportObj = {
-                version: "2.6",
-                exportDate: new Date().toISOString(),
-                commitments: commitments,
-                userProfile: userProfile
-            };
-            
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(exportObj, null, 2));
-            const dlAnchorElem = document.createElement('a');
-            dlAnchorElem.setAttribute("href", dataStr);
-            dlAnchorElem.setAttribute("download", `debt_tracker_backup_${dateStr}.json`);
-            document.body.appendChild(dlAnchorElem);
-            dlAnchorElem.click();
-            dlAnchorElem.remove();
-            showToast('Backup exported successfully!', '🛡️');
+            win();
+            try {
+                const blob = new Blob([JSON.stringify(commitments, null, 2)], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = "vault_elite_finance_backup_" + new Date().toISOString().slice(0, 10) + ".json";
+                document.body.appendChild(a); a.click();
+                setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 100);
+                showToast("Backup file downloaded (.json)!", "💾");
+            } catch (err) { showToast("Export failed.", "⚠️"); }
         }
 
         function importData(event) {
             const file = event.target.files[0];
             if (!file) return;
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = e => {
                 try {
-                    const parsed = JSON.parse(e.target.result);
-                    let rawCommitments = null;
-                    let rawProfile = null;
-
-                    if (Array.isArray(parsed)) {
-                        rawCommitments = parsed;
-                    } else if (parsed && typeof parsed === 'object') {
-                        if (Array.isArray(parsed.commitments)) {
-                            rawCommitments = parsed.commitments;
-                        }
-                        if (parsed.userProfile && typeof parsed.userProfile === 'object') {
-                            rawProfile = parsed.userProfile;
-                        }
-                    }
-
-                    if (rawCommitments) {
-                        commitments = rawCommitments.map(c => ({
-                            id: c.id || 'c_' + Date.now() + Math.random(),
-                            type: c.type || 'debt',
-                            name: c.name || 'Unnamed Commitment',
-                            dueDate: Number(c.dueDate) || 1,
-                            initialAmount: Number(c.initialAmount) || 0,
-                            remainingBalance: Number(c.remainingBalance) || 0,
-                            monthlyPayment: Number(c.monthlyPayment) || 0,
-                            lastPaidMonth: c.lastPaidMonth || '',
-                            history: Array.isArray(c.history) ? c.history : []
-                        }));
-
-                        if (rawProfile) {
-                            userProfile = {
-                                name: rawProfile.name || userProfile.name,
-                                initials: rawProfile.initials || userProfile.initials,
-                                autoReset: typeof rawProfile.autoReset === 'boolean' ? rawProfile.autoReset : userProfile.autoReset
-                            };
-                        }
-
-                        save();
-                        win();
-                        showToast('Data imported successfully!', '✨');
-                    } else {
-                        showToast('Invalid backup file format.', '⚠️');
-                    }
-                } catch (err) {
-                    showToast('Failed to parse JSON file.', '⚠️');
-                }
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported) && imported.every(c => c && typeof c.name === 'string' && 'monthly' in c && 'remaining' in c)) {
+                        commitments = imported.map(c => ({ ...c, history: c.history || [] })); animateCards = true; saveData(); win();
+                        showToast("Data successfully restored!", "💾");
+                    } else showToast("Invalid data structure in file.", "⚠️");
+                } catch (err) { showToast("Could not parse JSON file.", "⚠️"); }
                 event.target.value = '';
             };
+            reader.onerror = () => { showToast("Failed to read file.", "⚠️"); event.target.value = ''; };
             reader.readAsText(file);
         }
 
-        /* ---------- Render & Calculation ---------- */
-        function render() {
-            document.getElementById('greeting').textContent = `Welcome back, ${userProfile.name}`;
-            document.getElementById('user-avatar-btn').textContent = userProfile.initials;
-
-            ['due', 'highest-balance', 'lowest-balance'].forEach(mode => {
-                const btn = document.getElementById(`sort-btn-${mode}`);
-                if (currentSortMode === mode) {
-                    btn.className = 'py-2 rounded-xl font-semibold btn-gold text-slate-950';
-                } else {
-                    btn.className = 'py-2 rounded-xl font-semibold text-slate-400 hover:text-slate-200';
-                }
-            });
-
-            const mKey = curMonthKey();
-            const activeItems = commitments.filter(c => {
-                const paidThisMonth = c.lastPaidMonth === mKey;
-                const completed = c.remainingBalance === 0 || paidThisMonth;
-                return showCompleted ? true : !completed;
-            });
-
-            activeItems.sort((a, b) => {
-                if (currentSortMode === 'due') return a.dueDate - b.dueDate;
-                if (currentSortMode === 'highest-balance') return b.remainingBalance - a.remainingBalance;
-                if (currentSortMode === 'lowest-balance') return a.remainingBalance - b.remainingBalance;
-                return 0;
-            });
-
-            let totalInit = 0, totalRem = 0, totalMon = 0;
-            commitments.forEach(c => {
-                totalInit += Number(c.initialAmount || 0);
-                totalRem += Number(c.remainingBalance || 0);
-                totalMon += Number(c.monthlyPayment || 0);
-            });
-
-            const clearedAmt = Math.max(0, totalInit - totalRem);
-            const pct = totalInit > 0 ? Math.min(100, Math.round((clearedAmt / totalInit) * 100)) : 0;
-
-            document.getElementById('total-remaining').textContent = rm(totalRem);
-            document.getElementById('total-initial').textContent = rm(totalInit);
-            document.getElementById('total-monthly').textContent = rm(totalMon);
-            document.getElementById('ring-pct').textContent = `${pct}%`;
-            document.getElementById('ring-fg').style.strokeDashoffset = CIRC - (CIRC * pct) / 100;
-            document.getElementById('hero-sub').textContent = `${commitments.length} total commitments tracked`;
-
-            const listEl = document.getElementById('commitment-list');
-            if (activeItems.length === 0) {
-                listEl.innerHTML = `
-                    <div class="glass-luxury p-8 rounded-3xl text-center space-y-2">
-                        <span class="text-3xl">✨</span>
-                        <h4 class="text-sm font-bold text-slate-200">No active commitments found</h4>
-                        <p class="text-xs text-slate-400">Tap the gold + button below to add your first debt or utility.</p>
-                    </div>
-                `;
-                return;
-            }
-
-            listEl.innerHTML = activeItems.map((c, i) => {
-                const paidThisMonth = c.lastPaidMonth === mKey;
-                const isComp = c.remainingBalance === 0 || paidThisMonth;
-                const accent = isComp ? '#34d399' : (isUtility(c) ? '#60a5fa' : '#f5c451');
-                const prog = c.initialAmount > 0 ? Math.min(100, Math.max(0, ((c.initialAmount - c.remainingBalance) / c.initialAmount) * 100)) : 0;
-                const dueFormatted = getOrdinalSuffix(c.dueDate);
-                const estPayoff = !isUtility(c) ? getEstPayoff(c.remainingBalance, c.monthlyPayment) : null;
-
-                return `
-                    <div class="c-card glass-luxury p-5 rounded-3xl space-y-4 enter" style="--accent:${accent}; animation-delay:${i * 0.05}s">
-                        <div class="flex justify-between items-start">
-                            <div>
-                                <div class="flex items-center space-x-2">
-                                    <span class="chip" style="background:${accent}22; color:${accent}">${isUtility(c) ? '💡 UTILITY' : '💳 DEBT'}</span>
-                                    <span class="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Due Date: ${dueFormatted}</span>
-                                </div>
-                                <h4 class="text-base font-extrabold text-slate-100 mt-1">${esc(c.name)}</h4>
-                            </div>
-                            <div class="text-right">
-                                <span class="text-[10px] uppercase font-bold tracking-wider text-slate-400 block">Remaining</span>
-                                <span class="num font-extrabold text-base" style="color:${accent}">${rm(c.remainingBalance)}</span>
-                            </div>
-                        </div>
-
-                        ${!isUtility(c) ? `
-                            <div class="space-y-1.5">
-                                <div class="flex justify-between text-[11px] font-bold">
-                                    <span class="text-slate-400">Progress</span>
-                                    <span class="num text-slate-200">${prog.toFixed(0)}%</span>
-                                </div>
-                                <div class="bar-track h-2 rounded-full overflow-hidden">
-                                    <div class="bar-fill h-full rounded-full" style="width:${prog}%"></div>
-                                </div>
-                            </div>
-                        ` : ''}
-
-                        <div class="flex justify-between items-center pt-2 border-t border-white/5 text-xs text-slate-400">
-                            <div>
-                                Monthly: <strong class="num text-slate-200">${rm(c.monthlyPayment)}</strong>
-                                ${estPayoff ? `<span class="block text-[10px] text-amber-400/90 font-medium mt-0.5">Est Payoff: ${estPayoff}</span>` : ''}
-                            </div>
-                            <div class="flex items-center space-x-2">
-                                <div class="action-pill">
-                                    <button onclick="openHistoryModal('${c.id}')" title="Payment History" class="action-btn action-btn-history">📜</button>
-                                    <button onclick="openEditModal('${c.id}')" title="Edit Commitment" class="action-btn action-btn-edit">✏️</button>
-                                    <button onclick="deleteCommitment('${c.id}')" title="Delete Commitment" class="action-btn action-btn-delete">🗑️</button>
-                                </div>
-                                <button onclick="openPayModal('${c.id}')" class="btn-gold px-4 py-2 rounded-2xl text-xs font-extrabold shadow-md flex items-center space-x-1">
-                                    <span>${isComp ? 'Paid ✓' : 'Pay'}</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            }).join('');
+        function toggleShowCompleted() {
+            tap(); showCompleted = !showCompleted;
+            document.getElementById('toggle-completed-btn').innerText = showCompleted ? "Hide completed" : "Show completed";
+            animateCards = true; render();
         }
 
+        /* ---------- Resets ---------- */
+        function applyReset(c, onlyMonth) {
+            if (!c.history || c.history.length === 0) return false;
+            c.history.forEach(h => {
+                if (!h.monthKey) return;
+                if (!onlyMonth) h.monthKey = "RESET_BY_AUTO_RESET";
+                else if (h.monthKey === onlyMonth) h.monthKey = "RESET_BY_MONTHLY_RESET";
+            });
+            if (isUtility(c)) { c.initial = c.monthly; c.remaining = c.monthly; }
+            else if (c.initial === c.monthly) c.remaining = c.monthly;
+            return true;
+        }
+
+        function checkAutoMonthlyReset() {
+            if (!userProfile.autoReset) return;
+            const now = new Date();
+            const key = now.getFullYear() + "-" + String(now.getMonth() + 1).padStart(2, '0');
+            if (store.get('last_auto_reset_month') !== key) {
+                let count = 0;
+                commitments.forEach(c => { if (applyReset(c, null)) count++; });
+                store.set('last_auto_reset_month', key);
+                saveData();
+                if (count > 0) showToast("Monthly commitments reset for a new cycle", "📅");
+            }
+        }
+
+        function resetPaidItemsOnly() {
+            const cur = curMonthKey();
+            let count = 0;
+            commitments.forEach(c => { if (applyReset(c, cur)) count++; });
+            if (count > 0) { win(); animateCards = true; saveData(); showToast(`Monthly reset completed for ${count} item(s)!`, "🔄"); }
+            else { tap(); showToast("No paid commitments found to reset yet.", "💡"); }
+        }
+
+        /* ---------- History popup ---------- */
+        function openHistoryModal(id) {
+            tap();
+            historyId = id;
+            renderHistoryModal(id);
+            openM('history-modal');
+        }
+        function closeHistoryModal() { tap(); closeM('history-modal'); }
+        function renderHistoryModal(id) {
+            const item = commitments.find(c => c.id === id);
+            const list = document.getElementById('history-list');
+            if (!item) { list.innerHTML = ''; return; }
+            document.getElementById('history-title').innerText = `📜 ${item.name}`;
+            const _h = item.history || [], _t = _h.reduce((a, h) => a + (Number(h.amount) || 0), 0);
+            document.getElementById('history-total').innerHTML = _h.length
+                ? `${_h.length} payment${_h.length > 1 ? 's' : ''} · total paid <span class="num font-bold text-emerald-400">${stealthMode ? 'RM *****' : rm(_t)}</span>` : '';
+            if (!item.history || item.history.length === 0) {
+                list.innerHTML = `<div class="text-center text-slate-500 text-xs py-8">No payment records yet.</div>`;
+                return;
+            }
+            list.innerHTML = item.history.map((h, i) => `
+                <div class="flex justify-between items-center bg-white/[.03] px-3 py-2 rounded-xl border border-white/5">
+                    <span class="text-slate-300 text-[11px]">📅 ${esc(h.date)}</span>
+                    <div class="flex items-center space-x-2">
+                        <span class="num font-bold text-emerald-400 text-xs">+${stealthMode ? 'RM *****' : rm(h.amount)}</span>
+                        <button onclick="deleteHistoryItem(${item.id}, ${i})" title="Delete record" class="text-rose-400 hover:text-rose-300 px-1 font-bold text-base">×</button>
+                    </div>
+                </div>`).join('');
+        }
+
+        /* ---------- Payments ---------- */
+        function openPayModal(id) {
+            tap();
+            const item = commitments.find(c => c.id === id);
+            if (!item) return;
+            document.getElementById('pay-id').value = item.id;
+            document.getElementById('pay-modal-title').innerText = `Pay: ${item.name}`;
+            document.getElementById('pay-amount-input').value = item.monthly;
+            document.getElementById('pay-hint').classList.toggle('hidden', !isUtility(item));
+            const _chips = [{ l: 'Monthly', v: item.monthly }];
+            if (!isUtility(item) && item.remaining > 0) {
+                if (item.monthly * 2 < item.remaining) _chips.push({ l: '2× Monthly', v: item.monthly * 2 });
+                _chips.push({ l: '🏁 Clear all', v: item.remaining });
+            }
+            const _q = document.getElementById('pay-quick');
+            _q.innerHTML = _chips.map(c => `<button type="button" class="qchip" data-v="${c.v}">${c.l} · ${rm(c.v)}</button>`).join('');
+            _q.querySelectorAll('.qchip').forEach(b => b.addEventListener('click', () => { tap(); document.getElementById('pay-amount-input').value = b.dataset.v; updatePayPreview(); }));
+            updatePayPreview();
+            openM('pay-modal');
+        }
+        function closePayModal() { tap(); closeM('pay-modal'); }
+
+        function confirmPayment() {
+            const id = parseInt(document.getElementById('pay-id').value);
+            let amt = parseFloat(document.getElementById('pay-amount-input').value);
+            if (isNaN(amt) || amt <= 0) { triggerHaptic('heavy'); flagError('pay-amount-input'); showToast("Please enter a valid amount!", "⚠️"); return; }
+            const item = commitments.find(c => c.id === id);
+            if (!item) return;
+
+            if (!isUtility(item)) {
+                if (item.remaining <= 0) { showToast("This debt is already cleared.", "🏆"); closeM('pay-modal'); return; }
+                amt = Math.min(amt, item.remaining);
+            }
+
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' });
+            const timeStr = now.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+            const monthKey = curMonthKey();
+
+            if (!item.history) item.history = [];
+            item.history.unshift({ date: `${dateStr}, ${timeStr}`, amount: amt, monthKey });
+
+            const util = isUtility(item);
+            item.remaining = util ? 0 : Math.max(0, item.remaining - amt);
+            const cleared = !util && item.remaining <= 0;
+
+            closeM('pay-modal');
+            animateCards = false; saveData();
+            win();
+            confetti(cleared);
+            showToast(
+                cleared ? `🎉 ${item.name} fully cleared!` : util ? `${item.name} settled for this month!` : `Payment recorded for ${item.name}!`,
+                cleared ? "🏆" : "✅"
+            );
+        }
+
+        function deleteHistoryItem(itemId, idx) {
+            const item = commitments.find(c => c.id === itemId);
+            if (!item || !item.history) return;
+            showCustomConfirm("Delete this payment record and restore balance?", () => {
+                const rec = item.history[idx];
+                if (isUtility(item)) {
+                    if (rec.monthKey === curMonthKey()) item.remaining = item.initial;
+                } else {
+                    item.remaining = Math.min(item.initial, item.remaining + rec.amount);
+                }
+                item.history.splice(idx, 1);
+                animateCards = false; saveData();
+                renderHistoryModal(itemId);
+                showToast("Payment record deleted.", "🗑️");
+            });
+        }
+
+        function deleteCommitment(id) {
+            const item = commitments.find(c => c.id === id);
+            if (!item) return;
+            showCustomConfirm(`Permanently delete "${item.name}" from portfolio?`, () => {
+                const _idx = commitments.findIndex(c => c.id === id);
+                commitments = commitments.filter(c => c.id !== id);
+                animateCards = true; saveData();
+                showToast(`Deleted ${item.name}`, "🗑️", {
+                    label: 'Undo',
+                    fn: () => { commitments.splice(Math.min(_idx, commitments.length), 0, item); animateCards = true; saveData(); win(); }
+                });
+            });
+        }
+
+        function formatOrdinal(n) {
+            const num = parseInt(n);
+            if (isNaN(num)) return n;
+            const s = ["th", "st", "nd", "rd"], v = num % 100;
+            return num + (s[(v - 20) % 10] || s[v] || s[0]);
+        }
+
+        function addNewCommitment() {
+            const name = document.getElementById('new-name').value.trim();
+            const dueInput = document.getElementById('new-due').value.trim();
+            const type = document.getElementById('new-type').value === 'utility' ? 'utility' : 'debt';
+            const util = type === 'utility';
+            const initialRaw = parseFloat(document.getElementById('new-initial').value);
+            const monthly = parseFloat(document.getElementById('new-monthly').value);
+            if (!validateForm('new', name, dueInput, monthly, initialRaw, util)) {
+                triggerHaptic('heavy'); showToast("Please fill in all fields correctly!", "⚠️"); return;
+            }
+            const initial = util ? monthly : initialRaw;
+            const newId = commitments.length > 0 ? Math.max(...commitments.map(c => c.id)) + 1 : 1;
+            commitments.push({ id: newId, name, type, due: formatOrdinal(dueInput), initial, remaining: initial, monthly, history: [] });
+            ['new-name', 'new-due', 'new-initial', 'new-monthly'].forEach(i => document.getElementById(i).value = '');
+            closeM('add-modal');
+            animateCards = true; saveData();
+            win(); confetti();
+            showToast("New commitment added successfully!", "➕");
+        }
+
+        function editCommitment(id) {
+            tap();
+            const item = commitments.find(c => c.id === id);
+            if (!item) return;
+            document.getElementById('edit-id').value = item.id;
+            document.getElementById('edit-name').value = item.name;
+            document.getElementById('edit-due').value = parseInt(item.due) || item.due;
+            document.getElementById('edit-initial').value = item.initial;
+            document.getElementById('edit-monthly').value = item.monthly;
+            setFormType('edit', isUtility(item) ? 'utility' : 'debt');
+            openM('edit-modal');
+        }
+        function closeEditModal() { tap(); closeM('edit-modal'); }
+
+        function saveEditCommitment() {
+            const id = parseInt(document.getElementById('edit-id').value);
+            const name = document.getElementById('edit-name').value.trim();
+            const dueInput = document.getElementById('edit-due').value.trim();
+            const type = document.getElementById('edit-type').value === 'utility' ? 'utility' : 'debt';
+            const util = type === 'utility';
+            const initial = parseFloat(document.getElementById('edit-initial').value);
+            const monthly = parseFloat(document.getElementById('edit-monthly').value);
+            if (!validateForm('edit', name, dueInput, monthly, initial, util)) {
+                triggerHaptic('heavy'); showToast("Please fill in all fields correctly!", "⚠️"); return;
+            }
+            const item = commitments.find(c => c.id === id);
+            if (item) {
+                const wasUtil = isUtility(item);
+                const cur = curMonthKey();
+                const paidSum = (item.history || []).filter(h => h.monthKey === cur).reduce((s, h) => s + (Number(h.amount) || 0), 0);
+                item.name = name; item.due = formatOrdinal(dueInput); item.monthly = monthly; item.type = type;
+
+                if (util) {
+                    item.initial = monthly;
+                    item.remaining = paidSum > 0 ? 0 : monthly;
+                } else if (wasUtil) {
+                    item.initial = initial;
+                    item.remaining = Math.max(0, initial - paidSum);
+                } else if (item.initial !== initial) {
+                    const diff = initial - item.initial;
+                    item.initial = initial;
+                    item.remaining = Math.max(0, item.remaining + diff);
+                }
+            }
+            closeM('edit-modal');
+            animateCards = false; saveData();
+            win(); showToast("Changes saved successfully!", "✏️");
+        }
+
+        /* ---------- Helpers ---------- */
+        function getEstimatedPayoff(remaining, monthly) {
+            if (monthly <= 0 || remaining <= 0) return "Completed / N/A";
+            const d = new Date();
+            d.setMonth(d.getMonth() + Math.ceil(remaining / monthly));
+            return d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' });
+        }
+
+        function dueStatus(dueStr, paidThisMonth, paidFull) {
+            if (paidFull) return { text: 'Cleared 🏆', cls: 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30', accent: '#34d399' };
+            if (paidThisMonth) return { text: 'Paid this month ✓', cls: 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30', accent: '#34d399' };
+            const day = parseInt(dueStr);
+            if (isNaN(day)) return { text: 'Pending', cls: 'bg-slate-500/15 text-slate-300 border border-slate-500/30', accent: '#94a3b8' };
+            const now = new Date(); now.setHours(0, 0, 0, 0);
+            const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const target = new Date(now.getFullYear(), now.getMonth(), Math.min(day, dim));
+            const diff = Math.round((target - now) / 86400000);
+            if (diff < 0) return { text: `Overdue ${-diff}d`, cls: 'bg-rose-500/15 text-rose-300 border border-rose-500/40', accent: '#fb7185', overdue: true };
+            if (diff === 0) return { text: 'Due today', cls: 'bg-amber-500/20 text-amber-300 border border-amber-500/40', accent: '#f5c451' };
+            if (diff <= 5) return { text: `Due in ${diff}d`, cls: 'bg-amber-500/15 text-amber-300 border border-amber-500/30', accent: '#f5c451' };
+            return { text: `Due in ${diff}d`, cls: 'bg-slate-500/15 text-slate-300 border border-slate-500/25', accent: '#818cf8' };
+        }
+
+        /* ---------- Render ---------- */
+        function render() {
+            ['due', 'highest-balance', 'lowest-balance'].forEach(m => {
+                const b = document.getElementById(`sort-btn-${m}`);
+                if (!b) return;
+                b.className = m === currentSortMode
+                    ? "py-2 rounded-xl font-bold transition bg-gradient-to-br from-amber-400/25 to-amber-600/15 text-amber-300 border border-amber-500/40"
+                    : "py-2 rounded-xl font-semibold transition text-slate-400 border border-transparent hover:text-slate-200";
+            });
+
+            const listEl = document.getElementById('commitment-list');
+            let totalInitial = 0, totalRemaining = 0, totalMonthly = 0, debtMonthly = 0;
+            let paidTotal = 0, overdueCount = 0, overdueSum = 0, next = null, filteredOut = 0;
+
+            const sorted = [...commitments].sort((a, b) => {
+                if (currentSortMode === 'highest-balance') return b.remaining - a.remaining;
+                if (currentSortMode === 'lowest-balance') return a.remaining - b.remaining;
+                return (parseInt(a.due) || 0) - (parseInt(b.due) || 0);
+            });
+
+            document.querySelectorAll('#filter-row .fchip').forEach(b => b.classList.toggle('on', b.dataset.f === filterMode));
+            document.getElementById('cnt-all').innerText = commitments.length;
+            document.getElementById('cnt-debt').innerText = commitments.filter(c => !isUtility(c)).length;
+            document.getElementById('cnt-utility').innerText = commitments.filter(isUtility).length;
+
+            const curMonth = curMonthKey();
+            let html = '', visible = 0;
+
+            sorted.forEach(c => {
+                const util = isUtility(c);
+                const remainingNum = Number(c.remaining) || 0;
+
+                if (util) {
+                    totalMonthly += Number(c.monthly) || 0;
+                } else {
+                    totalInitial += Number(c.initial) || 0;
+                    totalRemaining += remainingNum;
+                    if (remainingNum > 0) { totalMonthly += Number(c.monthly) || 0; debtMonthly += Number(c.monthly) || 0; }
+                }
+
+                const paidThisMonth = !!(c.history && c.history.some(h => h.monthKey === curMonth));
+                const paidFull = !util && c.remaining <= 0;
+                const done = paidFull || (util && paidThisMonth);
+                (c.history || []).forEach(h => { if (h.monthKey === curMonth) paidTotal += Number(h.amount) || 0; });
+                if (!paidThisMonth && !paidFull) {
+                    const _d = daysUntil(c.due);
+                    if (_d !== null) {
+                        if (_d < 0) { overdueCount++; overdueSum += Number(c.monthly) || 0; }
+                        else if (!next || _d < next.d) next = { d: _d, name: c.name };
+                    }
+                }
+                if (filterMode === 'debt' && util) { filteredOut++; return; }
+                if (filterMode === 'utility' && !util) { filteredOut++; return; }
+                if (searchQuery && !c.name.toLowerCase().includes(searchQuery)) { filteredOut++; return; }
+                if ((paidFull || paidThisMonth) && !showCompleted) return;
+
+                const delay = (visible++) * 70;
+                let pct = c.initial > 0 ? ((c.initial - c.remaining) / c.initial) * 100 : 0;
+                pct = Math.min(100, Math.max(0, pct));
+                const st = dueStatus(c.due, paidThisMonth, paidFull);
+                const payoff = getEstimatedPayoff(c.remaining, c.monthly);
+                const last = c.history && c.history[0] ? c.history[0].date.split(',')[0] : null;
+
+                const dInit = stealthMode ? 'RM ******' : rm(c.initial);
+                const dRem = stealthMode ? 'RM ******' : rm(c.remaining);
+                const dMon = stealthMode ? 'RM ***' : rm(c.monthly);
+
+                const typeChip = util
+                    ? `<span class="chip bg-sky-500/15 text-sky-300 border border-sky-500/30 font-bold">💡 Utility</span>`
+                    : `<span class="chip bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">Due ${esc(c.due)}</span>`;
+
+                const payoffRow = util
+                    ? `<span class="text-slate-400 font-medium">🔁 Recurring bill</span>
+                       <span class="text-sky-300 font-bold">${done ? 'Settled ✓' : 'Resets monthly'}</span>`
+                    : `<span class="text-slate-400 font-medium">✨ Est. Payoff</span>
+                       <span class="text-amber-300 font-bold">${paidFull ? 'Completed ✓' : (stealthMode ? '******' : payoff)}</span>`;
+
+                const payLabel = done ? 'Paid ✓' : (util ? 'Pay Bill' : 'Pay This Month');
+
+                html += `
+                <div class="c-card glass-luxury ${animateCards ? 'enter' : ''} ${done ? 'opacity-70' : ''} ${st.overdue ? 'overdue-pulse' : ''} p-5 pl-6 rounded-3xl space-y-4"
+                     style="--accent:${st.accent};${animateCards ? `animation-delay:${delay}ms` : ''}">
+                    
+                    <!-- Top header row with title, due badges & side-by-side action buttons -->
+                    <div class="flex items-start justify-between gap-2">
+                        <div class="min-w-0 flex-1">
+                            <div class="flex items-center flex-wrap gap-2 mb-1">
+                                <h3 class="font-extrabold text-[16px] tracking-tight truncate ${done ? 'line-through text-slate-400' : 'text-slate-50'}">${esc(c.name)}</h3>
+                                ${typeChip}
+                                <span class="chip ${st.cls}">${st.text}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-400 font-medium">
+                                Estimate: <span class="num text-amber-400 font-bold">${dMon}</span>
+                                ${last ? `<span class="text-slate-600"> · </span>Last paid ${esc(last)}` : ''}
+                            </p>
+                        </div>
+
+                        <!-- Pill action buttons container -->
+                        <div class="action-pill shrink-0">
+                            <button onclick="openHistoryModal(${c.id})" title="Payment History" class="action-btn action-btn-history">
+                                📜
+                            </button>
+                            <button onclick="editCommitment(${c.id})" title="Edit Commitment" class="action-btn action-btn-edit">
+                                ✏️
+                            </button>
+                            <button onclick="deleteCommitment(${c.id})" title="Delete Commitment" class="action-btn action-btn-delete">
+                                🗑️
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Progress bar -->
+                    <div>
+                        <div class="flex justify-between text-[10px] font-bold text-slate-400 mb-1.5 uppercase tracking-wider">
+                            <span>${util ? 'This Month' : 'Progress'}</span>
+                            <span class="num text-amber-300">${pct.toFixed(1)}%</span>
+                        </div>
+                        <div class="bar-track w-full rounded-full h-2 overflow-hidden">
+                            <div class="bar-fill h-full rounded-full" style="width:${animateCards ? 0 : pct}%" data-w="${pct}"></div>
+                        </div>
+                    </div>
+
+                    <!-- Balance figures -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">${util ? 'Bill Amount' : 'Original Amount'}</span>
+                            <span class="num text-slate-300 font-semibold text-[13px]">${dInit}</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-slate-400 block text-[10px] uppercase font-bold tracking-wider">${util ? 'To Pay' : 'Balance Remaining'}</span>
+                            <span class="num font-extrabold text-[17px] ${done ? 'text-emerald-400' : 'text-rose-400'}">${dRem}</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/30 px-3 py-2 rounded-xl border border-white/5 flex justify-between items-center text-[11px]">
+                        ${payoffRow}
+                    </div>
+
+                    <div class="pt-3 border-t border-white/5">
+                        <button onclick="openPayModal(${c.id})" class="ripple-host w-full px-4 py-3 rounded-xl text-xs ${done ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold' : 'btn-gold'}">
+                            ${payLabel}
+                        </button>
+                    </div>
+                </div>`;
+            });
+
+            if (visible === 0 && filteredOut > 0 && (searchQuery || filterMode !== 'all')) {
+                html = `
+                <div class="glass-luxury enter p-8 rounded-3xl text-center text-slate-400 text-xs space-y-2">
+                    <p class="text-4xl">🔎</p>
+                    <p class="font-bold text-slate-200 text-sm">No commitments match</p>
+                    <button onclick="clearFilters()" class="btn-ghost px-4 py-2 rounded-xl text-[11px] text-amber-400 font-bold mt-2">Clear filters</button>
+                </div>`;
+            } else if (visible === 0) {
+                html = `
+                <div class="glass-luxury enter p-8 rounded-3xl text-center text-slate-400 text-xs space-y-2">
+                    <p class="text-4xl">🎉</p>
+                    <p class="font-bold text-slate-200 text-sm">All commitments paid for this month!</p>
+                    <p class="text-[11px] text-slate-500">Tap "Show completed" above to view the full list.</p>
+                </div>`;
+            }
+            listEl.innerHTML = html;
+
+            if (animateCards) {
+                requestAnimationFrame(() => requestAnimationFrame(() => {
+                    listEl.querySelectorAll('.bar-fill').forEach(b => b.style.width = b.dataset.w + '%');
+                }));
+            }
+            animateCards = false;
+
+            // Hero
+            setMoney('total-initial', totalInitial);
+            setMoney('total-remaining', totalRemaining);
+            setMoney('total-monthly', totalMonthly);
+
+            const cleared = totalInitial > 0 ? Math.min(100, Math.max(0, ((totalInitial - totalRemaining) / totalInitial) * 100)) : 0;
+            document.getElementById('ring-fg').style.strokeDashoffset = CIRC * (1 - cleared / 100);
+            document.getElementById('ring-pct').innerText = cleared.toFixed(cleared >= 10 || cleared === 0 ? 0 : 1) + '%';
+
+            const sub = document.getElementById('hero-sub');
+            if (totalRemaining <= 0 && totalInitial > 0) sub.innerText = '🏆 Debt-free. Legendary.';
+            else if (debtMonthly > 0) {
+                const months = Math.ceil(totalRemaining / debtMonthly);
+                const yrs = Math.floor(months / 12), mo = months % 12;
+                sub.innerText = stealthMode ? 'Stay the course 💪' : `≈ ${yrs ? yrs + 'y ' : ''}${mo}m to debt-free`;
+            } else sub.innerText = 'Add a commitment to begin';
+
+            renderDistribution();
+            setMoney('ins-paid', paidTotal);
+            document.getElementById('ins-month').innerText = new Date().toLocaleDateString('en-GB', { month: 'long' });
+            if (next) {
+                document.getElementById('ins-next').innerText = next.name;
+                document.getElementById('ins-next-sub').innerText = next.d === 0 ? 'today' : `in ${next.d} day${next.d > 1 ? 's' : ''}`;
+            } else { document.getElementById('ins-next').innerText = '—'; document.getElementById('ins-next-sub').innerText = 'nothing pending'; }
+            const _ov = document.getElementById('ins-over');
+            _ov.innerText = overdueCount;
+            _ov.className = `num font-extrabold text-[13px] block mt-1 ${overdueCount ? 'text-rose-400' : 'text-slate-200'}`;
+            document.getElementById('ins-over-sub').innerText = overdueCount ? (stealthMode ? 'needs attention' : rm(overdueSum) + ' due') : 'all good';
+        }
+
+        /* ================= ADDITIONS (improvements) ================= */
+        function daysUntil(dueStr) {
+            const day = parseInt(dueStr);
+            if (isNaN(day)) return null;
+            const now = new Date(); now.setHours(0, 0, 0, 0);
+            const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+            const target = new Date(now.getFullYear(), now.getMonth(), Math.min(day, dim));
+            return Math.round((target - now) / 86400000);
+        }
+
+        function flagError(id) {
+            const el = $(id); if (!el) return;
+            el.classList.remove('err'); void el.offsetWidth; el.classList.add('err');
+            el.addEventListener('input', () => el.classList.remove('err'), { once: true });
+        }
+        function validateForm(prefix, name, due, monthly, initial, util) {
+            let ok = true;
+            const d = parseInt(due);
+            if (!name) { flagError(prefix + '-name'); ok = false; }
+            if (isNaN(d) || d < 1 || d > 31) { flagError(prefix + '-due'); ok = false; }
+            if (isNaN(monthly) || monthly <= 0) { flagError(prefix + '-monthly'); ok = false; }
+            if (!util && (isNaN(initial) || initial <= 0)) { flagError(prefix + '-initial'); ok = false; }
+            return ok;
+        }
+
+        function setFilter(f) { tap(); filterMode = f; animateCards = true; render(); }
+        function clearFilters() { tap(); filterMode = 'all'; searchQuery = ''; $('search-input').value = ''; animateCards = true; render(); }
+        let searchTimer;
+        $('search-input').addEventListener('input', e => {
+            clearTimeout(searchTimer);
+            searchTimer = setTimeout(() => { searchQuery = e.target.value.trim().toLowerCase(); animateCards = true; render(); }, 160);
+        });
+
+        function updateNewPreview() {
+            const p = $('new-preview');
+            const util = $('new-type').value === 'utility';
+            const init = parseFloat($('new-initial').value), mon = parseFloat($('new-monthly').value);
+            if (!util && init > 0 && mon > 0) {
+                const months = Math.ceil(init / mon), yrs = Math.floor(months / 12), mo = months % 12;
+                const d = new Date(); d.setMonth(d.getMonth() + months);
+                p.innerText = `⏳ ${months} months (${yrs ? yrs + 'y ' : ''}${mo}m) · debt-free by ${d.toLocaleDateString('en-GB', { month: 'short', year: 'numeric' })}`;
+                p.classList.remove('hidden');
+            } else p.classList.add('hidden');
+        }
+        ['new-initial', 'new-monthly'].forEach(id => $(id).addEventListener('input', updateNewPreview));
+
+        function updatePayPreview() {
+            const item = commitments.find(c => c.id === parseInt($('pay-id').value));
+            const p = $('pay-preview');
+            if (!item) return;
+            const amt = parseFloat($('pay-amount-input').value);
+            if (isNaN(amt) || amt <= 0) { p.innerHTML = '<span class="text-slate-500">Enter an amount to preview.</span>'; return; }
+            if (isUtility(item)) { p.innerHTML = `💡 Bill will be marked <b class="text-emerald-400">settled</b> until next reset.`; return; }
+            const after = Math.max(0, item.remaining - Math.min(amt, item.remaining));
+            let html = `Balance after: <b class="num ${after === 0 ? 'text-emerald-400' : 'text-amber-300'}">${stealthMode ? 'RM ******' : rm(after)}</b>`;
+            if (after === 0) html += ' 🏆 fully cleared!';
+            if (amt > item.remaining) html += `<br><span class="text-[10px] text-slate-500">Amount capped to the remaining balance.</span>`;
+            p.innerHTML = html;
+        }
+
+        function renderDistribution() {
+            const debts = commitments.filter(c => !isUtility(c) && c.remaining > 0).sort((a, b) => b.remaining - a.remaining);
+            const total = debts.reduce((a, c) => a + c.remaining, 0);
+            $('dist-wrap').classList.toggle('hidden', debts.length < 2);
+            if (debts.length < 2) return;
+            $('dist-bar').innerHTML = debts.map((c, i) => `<i style="flex-grow:${c.remaining};background:${PALETTE[i % PALETTE.length]}" title="${esc(c.name)}"></i>`).join('');
+            $('dist-legend').innerHTML = debts.slice(0, 4).map((c, i) =>
+                `<span class="text-[10px] text-slate-400 font-semibold flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full" style="background:${PALETTE[i % PALETTE.length]}"></span>${esc(c.name)}
+                    <span class="num text-slate-500">${Math.round((c.remaining / total) * 100)}%</span></span>`).join('');
+        }
+
+        function toggleFeedbackSetting() { userProfile.feedback = !userProfile.feedback; updateFeedbackToggleUI(); tap(); }
+        function updateFeedbackToggleUI() {
+            const btn = $('feedback-toggle-btn');
+            btn.className = userProfile.feedback
+                ? "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-emerald-500/20 text-emerald-400 border border-emerald-500/40"
+                : "px-4 py-1.5 rounded-xl text-xs font-extrabold bg-slate-800 text-slate-500 border border-slate-700";
+            btn.innerText = userProfile.feedback ? "ON" : "OFF";
+        }
+        const _openProfile = openProfileModal;
+        openProfileModal = function () { _openProfile(); updateFeedbackToggleUI(); };
+
+        /* cursor glow, card spotlight, scroll progress, FAB auto-hide */
+        let lastY = 0;
+        addEventListener('scroll', () => {
+            const h = document.documentElement, max = h.scrollHeight - h.clientHeight;
+            $('scroll-bar').style.width = (max > 0 ? (scrollY / max) * 100 : 0) + '%';
+            $('fab').classList.toggle('away', scrollY > lastY + 6 && scrollY > 300);
+            if (scrollY < lastY - 6) $('fab').classList.remove('away');
+            lastY = scrollY;
+        }, { passive: true });
+
+        /* keyboard: Enter submits, Esc/back closes */
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                const open = [...document.querySelectorAll('.modal.open')].pop();
+                if (open) { open.classList.remove('open'); return; }
+                if (document.activeElement === $('search-input')) $('search-input').blur();
+                return;
+            }
+            const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName);
+            if (e.key === 'Enter' && typing) {
+                if ($('add-modal').classList.contains('open')) { e.preventDefault(); addNewCommitment(); }
+                else if ($('edit-modal').classList.contains('open')) { e.preventDefault(); saveEditCommitment(); }
+                else if ($('pay-modal').classList.contains('open')) { e.preventDefault(); confirmPayment(); }
+                return;
+            }
+        });
+
+        /* PWA: service worker */
+        if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+            addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+        }
+
+        updateAvatarUI();
+        checkAutoMonthlyReset();
         render();
+        if (!store.ok) showToast('Storan pelayar disekat — data tidak akan disimpan selepas tutup. Guna Export untuk backup.', '⚠️');
     </script>
 </body>
 </html>
