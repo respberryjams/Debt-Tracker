@@ -1198,8 +1198,8 @@
                 const dMon = stealthMode ? 'RM ***' : rm(c.monthly);
 
                 const typeChip = util
-                    ? `<span class="chip bg-sky-500/15 text-sky-300 border border-sky-500/30 font-bold">💡 Utility</span>`
-                    : `<span class="chip bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">Due ${esc(c.due)}</span>`;
+    ? `<span class="chip bg-sky-500/15 text-sky-300 border border-sky-500/30 font-bold">💡 Utility (Due ${esc(c.due)})</span>`
+    : `<span class="chip bg-amber-500/15 text-amber-300 border border-amber-500/30 font-bold">Due ${esc(c.due)}</span>`;
 
                 const payoffRow = util
                     ? `<span class="text-slate-400 font-medium">🔁 Recurring bill</span>
